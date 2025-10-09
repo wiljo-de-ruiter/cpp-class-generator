@@ -4,11 +4,11 @@ import * as fs from 'fs';
 
 async function openFiles(headerPath: string, sourcePath: string)
 {
-  const doc1 = await vscode.workspace.openTextDocument(headerPath);
-  await vscode.window.showTextDocument(doc1, { preview: false });
+  const doc1 = await vscode.workspace.openTextDocument( headerPath );
+  await vscode.window.showTextDocument( doc1, { preview: false });
 
-  const doc2 = await vscode.workspace.openTextDocument(sourcePath);
-  await vscode.window.showTextDocument(doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
+  const doc2 = await vscode.workspace.openTextDocument( sourcePath );
+  await vscode.window.showTextDocument( doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
 }
 
 function buildClassHeaderLine(className: string, totalLength = 77): string
@@ -49,7 +49,8 @@ function buildClassHeaderLine(className: string, totalLength = 77): string
 }
 
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext)
+{
     let disposable = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async () => {
         const className = await vscode.window.showInputBox({
             prompt: 'Voer de naam van de C++ klasse in',
@@ -66,8 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage('Geen actieve editor gevonden');
             return;
         }
-
-
+        
         const config = vscode.workspace.getConfiguration();
         const useGuards = config.get<boolean>('useIncludeGuards', true);
         const headerExt = config.get<string>('headerExtension', '.h');
@@ -84,28 +84,30 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        // Bepaal datum en maandnaam
+        // Bepaal datum en monthName
         const now = new Date();
-        const maanden = [
-            "january", "february", "march", "april", "may", "june",
-            "july", "august", "september", "october", "november", "december"
+        const months = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
         ];
-        const maandNaam = maanden[now.getMonth()];
-        const jaar = now.getFullYear();
+        const monthName = months[now.getMonth()];
+        const year = now.getFullYear();
 
-        const auteurNaam = config.get<string>("cppClassGenerator.authorName") || "Onbekende Auteur";
+        const authorName = config.get<string>("cppClassGenerator.authorName") || "Wiljo de Ruiter";
+        const companyName = config.get<string>("cppClassGenerator.companyName") || "Syrinx Industrial Electronics";
 
         const copyrightHeader =
-`/* Copyright (C) ${jaar}, Syrinx Industrial Electronics
+`/* Copyright (C) ${year}, ${companyName}
  * All rights reserved.
  *
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Written by ${auteurNaam}, ${maandNaam} ${jaar}
+ * Written by ${authorName}, ${monthName} ${year}
  */
 `;
 
+        const classHeaderLine = buildClassHeaderLine( className )
         const headerGuard = `${className.toUpperCase()}_H`;
 
         const headerContent = `${copyrightHeader}
@@ -113,7 +115,7 @@ export function activate(context: vscode.ExtensionContext) {
 #define ${headerGuard}
 //#
 //###########################################################################
-${buildClassHeaderLine(className)}
+${classHeaderLine}
 //#
 class ${className} {
 public:
@@ -125,7 +127,7 @@ private:
 
 };
 //#
-${buildClassHeaderLine(className)}
+${classHeaderLine}
 //###########################################################################
 //#
 #endif // ${headerGuard}
@@ -135,7 +137,7 @@ ${buildClassHeaderLine(className)}
 #include "${className}.h"
 //#
 //###########################################################################
-${buildClassHeaderLine(className)}
+${classHeaderLine}
 //#
 ${className}::${className}()
 {
@@ -147,7 +149,7 @@ ${className}::~${className}()
     // destructor
 }
 //#
-${buildClassHeaderLine(className)}
+${classHeaderLine}
 //###########################################################################
 //#
 `;
