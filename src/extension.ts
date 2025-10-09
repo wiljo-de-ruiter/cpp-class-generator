@@ -2,38 +2,66 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
-function buildClassHeaderLine(className: string, totalLength = 78): string {
-    const nameLen = className.length;
-    const minPadding = 1;
+function buildClassHeaderLine(className: string, totalLength = 77): string {
+    const nameLen = className.length + 2 + 1;   // Including spaces and closing '#'
 
     // Bepaal het maximaal aantal blokken met minimale padding
-    let count = Math.floor((totalLength - 1) / (2 + 2 * minPadding + nameLen));
+    let count = Math.floor(( totalLength - 3 ) / nameLen );
     if (count < 1) count = 1;
+    let spaces = ( totalLength - 3 ) - count * nameLen;
 
-    // Bereken benodigde padding per kant om exact totalLength te halen
-    const totalInnerLength = totalLength - 3; // eerste '//#' al in lijn
-    const baseBlockLen = 3 + nameLen; // ' # ' + className zonder padding
-    let padding = Math.floor((totalInnerLength / count - baseBlockLen) / 2);
-    if (padding < minPadding) padding = minPadding;
-
-    const blockLen = 2 + 2 * padding + nameLen;
-    // Pas count aan indien met meer padding nog meer blokken passen
-    while (count * blockLen + 1 <= totalLength) {
-        count++;
+    let sp = [];
+    for( let i = 0; i < 2 * count; i++ ) {
+        sp.push( 0 );
     }
-    count = Math.max(1, count - 1);
-
-    const usedLength = 1 + count * blockLen;
-    const remaining = totalLength - usedLength;
-
-    const pad = ' '.repeat(padding);
+    while( spaces > 0 ) {
+        for( let i = 0; spaces > 0 && i < count; ++i, --spaces ) {
+            sp[ count - i - 1 ] += 1;
+            if( --spaces > 0 ) {
+                sp[ count + i ] += 1;
+            }
+        }
+    }
     let line = '//#';
-    for (let i = 0; i < count; i++) {
-        line += `#${pad}${className}${pad}`;
+    for( let i = 0; i < count; ++i ) {
+        if( sp[ 2 * i ] > 0 ) {
+            line += ' '.repeat( sp[ 2 * i ] );
+        }
+        line += ' ';
+        line += className;
+        line += ' ';
+        if( sp[ 2 * i + 1 ] > 0 ) {
+            line += ' '.repeat( sp[ 2 * i + 1  ] );
+        }
+        line += '#';
     }
-    line += ' '.repeat(remaining);
-    line += '#';
     return line;
+
+
+    // // Bereken benodigde padding per kant om exact totalLength te halen
+    // const totalInnerLength = totalLength - 3; // eerste '//#' al in lijn
+    // const baseBlockLen = 3 + nameLen; // ' # ' + className zonder padding
+    // let padding = Math.floor((totalInnerLength / count - baseBlockLen) / 2);
+    // if (padding < minPadding) padding = minPadding;
+
+    // const blockLen = 2 + 2 * padding + nameLen;
+    // // Pas count aan indien met meer padding nog meer blokken passen
+    // while (count * blockLen + 1 <= totalLength) {
+    //     count++;
+    // }
+    // count = Math.max(1, count - 1);
+
+    // const usedLength = 1 + count * blockLen;
+    // const remaining = totalLength - usedLength;
+
+    // const pad = ' '.repeat(padding);
+    // let line = '//#';
+    // for (let i = 0; i < count; i++) {
+    //     line += `#${pad}${className}${pad}`;
+    // }
+    // line += ' '.repeat(remaining);
+    // line += '#';
+    // return line;
 }
 
 
