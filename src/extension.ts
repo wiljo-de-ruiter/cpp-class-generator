@@ -2,7 +2,17 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
-function buildClassHeaderLine(className: string, totalLength = 77): string {
+async function openFiles(headerPath: string, sourcePath: string)
+{
+  const doc1 = await vscode.workspace.openTextDocument(headerPath);
+  await vscode.window.showTextDocument(doc1, { preview: false });
+
+  const doc2 = await vscode.workspace.openTextDocument(sourcePath);
+  await vscode.window.showTextDocument(doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
+}
+
+function buildClassHeaderLine(className: string, totalLength = 77): string
+{
     const nameLen = className.length + 2 + 1;   // Including spaces and closing '#'
 
     // Bepaal het maximaal aantal blokken met minimale padding
@@ -36,32 +46,6 @@ function buildClassHeaderLine(className: string, totalLength = 77): string {
         line += '#';
     }
     return line;
-
-
-    // // Bereken benodigde padding per kant om exact totalLength te halen
-    // const totalInnerLength = totalLength - 3; // eerste '//#' al in lijn
-    // const baseBlockLen = 3 + nameLen; // ' # ' + className zonder padding
-    // let padding = Math.floor((totalInnerLength / count - baseBlockLen) / 2);
-    // if (padding < minPadding) padding = minPadding;
-
-    // const blockLen = 2 + 2 * padding + nameLen;
-    // // Pas count aan indien met meer padding nog meer blokken passen
-    // while (count * blockLen + 1 <= totalLength) {
-    //     count++;
-    // }
-    // count = Math.max(1, count - 1);
-
-    // const usedLength = 1 + count * blockLen;
-    // const remaining = totalLength - usedLength;
-
-    // const pad = ' '.repeat(padding);
-    // let line = '//#';
-    // for (let i = 0; i < count; i++) {
-    //     line += `#${pad}${className}${pad}`;
-    // }
-    // line += ' '.repeat(remaining);
-    // line += '#';
-    // return line;
 }
 
 
@@ -122,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
  */
 `;
 
-        const headerGuard = `_${className.toUpperCase()}_H_`;
+        const headerGuard = `${className.toUpperCase()}_H`;
 
         const headerContent = `${copyrightHeader}
 #ifndef ${headerGuard}
@@ -170,6 +154,8 @@ ${buildClassHeaderLine(className)}
 
         fs.writeFileSync(headerFile, headerContent);
         fs.writeFileSync(sourceFile, sourceContent);
+
+        openFiles(headerFile, sourceFile);
 
         vscode.window.showInformationMessage(`C++ class ${className} succesvol aangemaakt!`);
     });
