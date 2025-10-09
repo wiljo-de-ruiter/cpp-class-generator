@@ -11,8 +11,8 @@ function buildClassHeaderLine(className: string, totalLength = 78): string {
     if (count < 1) count = 1;
 
     // Bereken benodigde padding per kant om exact totalLength te halen
-    const totalInnerLength = totalLength - 1; // eerste '#' al in lijn
-    const baseBlockLen = 2 + nameLen; // ' #' + className zonder padding
+    const totalInnerLength = totalLength - 3; // eerste '//#' al in lijn
+    const baseBlockLen = 3 + nameLen; // ' # ' + className zonder padding
     let padding = Math.floor((totalInnerLength / count - baseBlockLen) / 2);
     if (padding < minPadding) padding = minPadding;
 
@@ -27,12 +27,12 @@ function buildClassHeaderLine(className: string, totalLength = 78): string {
     const remaining = totalLength - usedLength;
 
     const pad = ' '.repeat(padding);
-    let line = '#';
+    let line = '//#';
     for (let i = 0; i < count; i++) {
-        line += ` #${pad}${className}${pad}`;
+        line += `#${pad}${className}${pad}`;
     }
     line += ' '.repeat(remaining);
-
+    line += '#';
     return line;
 }
 
@@ -55,6 +55,12 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
+
+        const config = vscode.workspace.getConfiguration();
+        const useGuards = config.get<boolean>('useIncludeGuards', true);
+        const headerExt = config.get<string>('headerExtension', '.h');
+        const addCopyright = config.get<boolean>('addCopyrightHeader', true);
+        const commentStyle = config.get<string>('classCommentStyle', 'banner');
         const folder = path.dirname(editor.document.uri.fsPath);
 
         const headerFile = path.join(folder, `${className}.h`);
@@ -69,13 +75,12 @@ export function activate(context: vscode.ExtensionContext) {
         // Bepaal datum en maandnaam
         const now = new Date();
         const maanden = [
-            "januari", "februari", "maart", "april", "mei", "juni",
-            "juli", "augustus", "september", "oktober", "november", "december"
+            "january", "february", "march", "april", "may", "june",
+            "july", "august", "september", "october", "november", "december"
         ];
         const maandNaam = maanden[now.getMonth()];
         const jaar = now.getFullYear();
 
-        const config = vscode.workspace.getConfiguration();
         const auteurNaam = config.get<string>("cppClassGenerator.authorName") || "Onbekende Auteur";
 
         const copyrightHeader =
