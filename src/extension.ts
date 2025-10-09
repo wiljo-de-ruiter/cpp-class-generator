@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-
+//---------------------------------------------------------------------------
 async function openFiles(headerPath: string, sourcePath: string)
 {
     const doc1 = await vscode.workspace.openTextDocument( headerPath );
@@ -10,31 +10,33 @@ async function openFiles(headerPath: string, sourcePath: string)
     const doc2 = await vscode.workspace.openTextDocument( sourcePath );
     await vscode.window.showTextDocument( doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
 }
-
+//---------------------------------------------------------------------------
 function buildClassHeaderLine(className: string, totalLength = 77): string
 {
-    const nameLen = className.length + 2 + 1;   // Including spaces and closing '#'
+    const tokenLength = className.length + 2 + 1;   // Includes leading and trailing space and closing '#'
 
-    // Bepaal het maximaal aantal blokken met minimale padding
-    let count = Math.floor(( totalLength - 3 ) / nameLen );
-    if( count < 1 ) count = 1;
-    let spaces = ( totalLength - 3 ) - count * nameLen;
-    if( spaces < 0 ) spaces = 0;
+    // Determine amount of tokens and padding
+    let tokenCount = Math.floor(( totalLength - 3 ) / tokenLength );
+    if( tokenCount < 1 ) tokenCount = 1;
+    let padding = ( totalLength - 3 ) - tokenCount * tokenLength;
+    if( padding < 0 ) padding = 0;
 
     let sp = [];
-    for( let i = 0; i < 2 * count; i++ ) {
+    for( let i = 0; i < 2 * tokenCount; i++ ) {
         sp.push( 0 );
     }
-    while( spaces > 0 ) {
-        for( let i = 0; spaces > 0 && i < count; ++i, --spaces ) {
-            sp[ count - i - 1 ] += 1;
-            if( --spaces > 0 ) {
-                sp[ count + i ] += 1;
+    while( padding > 0 ) {
+        // Add padding from the center outwards
+        for( let i = 0; padding > 0 && i < tokenCount; ++i, --padding ) {
+            sp[ tokenCount - i - 1 ] += 1;
+            if( --padding > 0 ) {
+                sp[ tokenCount + i ] += 1;
             }
         }
     }
+    // Put it all together
     let line = '//#';
-    for( let i = 0; i < count; ++i ) {
+    for( let i = 0; i < tokenCount; ++i ) {
         if( sp[ 2 * i ] > 0 ) {
             line += ' '.repeat( sp[ 2 * i ] );
         }
@@ -42,50 +44,45 @@ function buildClassHeaderLine(className: string, totalLength = 77): string
         line += className;
         line += ' ';
         if( sp[ 2 * i + 1 ] > 0 ) {
-            line += ' '.repeat( sp[ 2 * i + 1  ] );
+            line += ' '.repeat( sp[ 2 * i + 1 ] );
         }
         line += '#';
     }
     return line;
 }
-
-
+//---------------------------------------------------------------------------
 export function activate(context: vscode.ExtensionContext)
 {
     let disposable = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async () => {
-        const className = await vscode.window.showInputBox({
-            prompt: 'Voer de naam van de C++ klasse in',
+        const className = await vscode.window.showInputBox( {
+            prompt: 'Enter the name of the C++ class here',
             placeHolder: 'MyClass'
         });
 
-        if (!className) {
-            vscode.window.showErrorMessage('Geen class naam ingevoerd');
+        if( !className ) {
+            vscode.window.showErrorMessage('No C++ class name given');
             return;
         }
 
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
-            vscode.window.showErrorMessage('Geen actieve editor gevonden');
+            vscode.window.showErrorMessage('No active editor found');
             return;
         }
 
         const config = vscode.workspace.getConfiguration();
-        const useGuards = config.get<boolean>('useIncludeGuards', true);
-        const headerExt = config.get<string>('headerExtension', '.h');
-        const addCopyright = config.get<boolean>('addCopyrightHeader', true);
-        const commentStyle = config.get<string>('classCommentStyle', 'banner');
-        const folder = path.dirname(editor.document.uri.fsPath);
+        const folder = path.dirname( editor.document.uri.fsPath );
 
-        const headerFile = path.join(folder, `${className}.h`);
-        const sourceFile = path.join(folder, `${className}.cpp`);
+        const headerFile = path.join( folder, `${className}.h` );
+        const sourceFile = path.join( folder, `${className}.cpp` );
 
-        // Check of bestanden al bestaan
-        if (fs.existsSync(headerFile) || fs.existsSync(sourceFile)) {
-            vscode.window.showErrorMessage(`Kan class ${className} niet aanmaken: bestanden bestaan al.`);
+        // Check if the files already exist
+        if( fs.existsSync( headerFile ) || fs.existsSync( sourceFile )) {
+            vscode.window.showErrorMessage( `Can't create class ${className}: the files already exist.` );
             return;
         }
 
-        // Bepaal datum en monthName
+        // Determine year and monthName
         const now = new Date();
         const months = [
             "January", "February", "March", "April", "May", "June",
@@ -94,8 +91,8 @@ export function activate(context: vscode.ExtensionContext)
         const monthName = months[now.getMonth()];
         const year = now.getFullYear();
 
-        const authorName = config.get<string>("cppClassGenerator.authorName") || "Wiljo de Ruiter";
-        const companyName = config.get<string>("cppClassGenerator.companyName") || "Syrinx Industrial Electronics";
+        const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
+        const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
 
         const copyrightHeader =
 `/* Copyright (C) ${year}, ${companyName}
@@ -114,6 +111,10 @@ export function activate(context: vscode.ExtensionContext)
         const headerContent = `${copyrightHeader}
 #ifndef ${headerGuard}
 #define ${headerGuard}
+//---------------------------------------------------------------------------
+//#include <SystemFiles>
+//---------------------------------------------------------------------------
+//#include "CustomFiles"
 //#
 //###########################################################################
 ${classHeaderLine}
@@ -138,6 +139,10 @@ ${classHeaderLine}
 
         const sourceContent = `${copyrightHeader}
 #include "${className}.h"
+//---------------------------------------------------------------------------
+//#include <SystemFiles>
+//---------------------------------------------------------------------------
+//#include "CustomFiles"
 //#
 //###########################################################################
 ${classHeaderLine}
@@ -157,15 +162,15 @@ ${classHeaderLine}
 //#
 `;
 
-        fs.writeFileSync(headerFile, headerContent);
-        fs.writeFileSync(sourceFile, sourceContent);
+        fs.writeFileSync( headerFile, headerContent );
+        fs.writeFileSync( sourceFile, sourceContent );
 
-        openFiles(headerFile, sourceFile);
+        openFiles( headerFile, sourceFile );
 
-        vscode.window.showInformationMessage(`C++ class ${className} succesvol aangemaakt!`);
+        vscode.window.showInformationMessage(`C++ class ${className} succesfully created!`);
     });
 
     context.subscriptions.push(disposable);
 }
-
+//---------------------------------------------------------------------------
 export function deactivate() {}
