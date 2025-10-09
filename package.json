@@ -1,0 +1,62 @@
+{
+  "name": "cpp-class-generator",
+  "displayName": "C++ Class Generator",
+  "description": "Genereer automatisch een C++ class (header + source) met copyright header.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onCommand:cpp-class-generator.createCppClass"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wiljo-de-ruiter/cpp-class-generator"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "cpp-class-generator.createCppClass",
+        "title": "Create C++ Class"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "cpp-class-generator.createCppClass",
+          "when": "editorLangId == cpp",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "cpp-class-generator.createCppClass"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "C++ Class Generator",
+      "properties": {
+        "cppClassGenerator.authorName": {
+          "type": "string",
+          "default": "",
+          "description": "Naam of bedrijfsnaam voor de copyright header"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.0",
+    "typescript": "^4.5.0",
+    "vscode": "^1.1.34"
+  }
+}
