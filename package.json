@@ -2,7 +2,7 @@
   "name": "cpp-class-generator",
   "displayName": "C++ Class Generator",
   "description": "Genereert automatisch een C++ class (header + source) met copyright en structuur.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "Wiljo de Ruiter",
   "engines": {
     "vscode": "^1.60.0"
@@ -24,27 +24,15 @@
     "configuration": {
       "title": "C++ Class Generator",
       "properties": {
-        "cppClassGenerator.useIncludeGuards": {
-          "type": "boolean",
-          "default": true,
-          "description": "Gebruik include guards in de header files."
-        },
-        "cppClassGenerator.headerExtension": {
+        "cppClassGenerator.authorName": {
           "type": "string",
-          "default": ".h",
-          "enum": [".h", ".hpp"],
-          "description": "Bestandsextensie voor header files."
+          "default": "Enter your name here",
+          "description": "Name of the devloper that is used in the copyright file header."
         },
-        "cppClassGenerator.addCopyrightHeader": {
-          "type": "boolean",
-          "default": true,
-          "description": "Voeg automatisch een copyright-header toe."
-        },
-        "cppClassGenerator.classCommentStyle": {
+        "cppClassGenerator.companyName": {
           "type": "string",
-          "default": "banner",
-          "enum": ["none", "banner", "simple"],
-          "description": "Stijl van class commentaar (none, simple of banner)."
+          "default": "Enter your company name here",
+          "description": "Name of the company that is used in the copyright file header."
         }
       }
     }
