@@ -4,11 +4,11 @@ import * as fs from 'fs';
 
 async function openFiles(headerPath: string, sourcePath: string)
 {
-  const doc1 = await vscode.workspace.openTextDocument( headerPath );
-  await vscode.window.showTextDocument( doc1, { preview: false });
+    const doc1 = await vscode.workspace.openTextDocument( headerPath );
+    await vscode.window.showTextDocument( doc1, { preview: false });
 
-  const doc2 = await vscode.workspace.openTextDocument( sourcePath );
-  await vscode.window.showTextDocument( doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
+    const doc2 = await vscode.workspace.openTextDocument( sourcePath );
+    await vscode.window.showTextDocument( doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
 }
 
 function buildClassHeaderLine(className: string, totalLength = 77): string
@@ -17,8 +17,9 @@ function buildClassHeaderLine(className: string, totalLength = 77): string
 
     // Bepaal het maximaal aantal blokken met minimale padding
     let count = Math.floor(( totalLength - 3 ) / nameLen );
-    if (count < 1) count = 1;
+    if( count < 1 ) count = 1;
     let spaces = ( totalLength - 3 ) - count * nameLen;
+    if( spaces < 0 ) spaces = 0;
 
     let sp = [];
     for( let i = 0; i < 2 * count; i++ ) {
@@ -67,7 +68,7 @@ export function activate(context: vscode.ExtensionContext)
             vscode.window.showErrorMessage('Geen actieve editor gevonden');
             return;
         }
-        
+
         const config = vscode.workspace.getConfiguration();
         const useGuards = config.get<boolean>('useIncludeGuards', true);
         const headerExt = config.get<string>('headerExtension', '.h');
@@ -117,12 +118,14 @@ export function activate(context: vscode.ExtensionContext)
 //###########################################################################
 ${classHeaderLine}
 //#
-class ${className} {
+class ${className}
+{
 public:
     ${className}();
     ~${className}();
     //-----------------------------------------------------------------------
 
+protected:
 private:
 
 };
