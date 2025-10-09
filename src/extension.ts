@@ -135,6 +135,7 @@ class ${className} {
 public:
     ${className}();
     ~${className}();
+    //-----------------------------------------------------------------------
 
 private:
 
@@ -152,11 +153,13 @@ ${buildClassHeaderLine(className)}
 //###########################################################################
 ${buildClassHeaderLine(className)}
 //#
-${className}::${className}() {
+${className}::${className}()
+{
     // constructor
 }
-
-${className}::~${className}() {
+//---------------------------------------------------------------------------
+${className}::~${className}()
+{
     // destructor
 }
 //#
