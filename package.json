@@ -4,6 +4,7 @@
   "description": "Genereert automatisch een C++ class (header + source) met copyright en structuur.",
   "version": "1.0.0",
   "publisher": "Wiljo de Ruiter",
+  "icon": "media/icon.png",
   "engines": {
     "vscode": "^1.60.0"
   },
