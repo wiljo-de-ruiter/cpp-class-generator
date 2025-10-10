@@ -18,7 +18,8 @@
     "commands": [
       {
         "command": "cpp-class-generator.createCppClass",
-        "title": "Create C++ Class"
+        "title": "Create C++ Class",
+        "category": "C++"
       }
     ],
     "configuration": {
@@ -35,6 +36,14 @@
           "description": "Name of the company that is used in the copyright file header."
         }
       }
+    },
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "cpp-class-generator.createCppClass",
+          "group": "2_cutcopypaste"
+        }
+      ]
     }
   },
   "repository": {

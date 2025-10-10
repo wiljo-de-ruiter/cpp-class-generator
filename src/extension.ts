@@ -53,7 +53,31 @@ function buildClassHeaderLine(className: string, totalLength = 77): string
 //---------------------------------------------------------------------------
 export function activate(context: vscode.ExtensionContext)
 {
-    let disposable = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async () => {
+    let disposable = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async ( uri: vscode.Uri | undefined ) => {
+        let targetPath: string | undefined;
+
+        if( uri && uri.fsPath ) {
+            const stat = await vscode.workspace.fs.stat( uri );
+            if( stat.type === vscode.FileType.Directory ) {
+                // Geselecteerd item is een map
+                targetPath = uri.fsPath;
+            } else {
+                // Geselecteerd item is een bestand – gebruik de map waarin het zit
+                targetPath = path.dirname( uri.fsPath );
+            }
+        } else if( vscode.window.activeTextEditor ) {
+            const activeFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
+            targetPath = path.dirname( activeFilePath );
+        
+        } else if( vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ) {
+            targetPath = vscode.workspace.workspaceFolders[ 0 ].uri.fsPath;
+        }
+        // const editor = vscode.window.activeTextEditor;
+        if( !targetPath ) {
+            vscode.window.showErrorMessage('No valid folder found to create the class files!');
+            return;
+        }
+
         const className = await vscode.window.showInputBox( {
             prompt: 'Enter the name of the C++ class here',
             placeHolder: 'MyClass'
@@ -64,17 +88,11 @@ export function activate(context: vscode.ExtensionContext)
             return;
         }
 
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage('No active editor found');
-            return;
-        }
 
         const config = vscode.workspace.getConfiguration();
-        const folder = path.dirname( editor.document.uri.fsPath );
 
-        const headerFile = path.join( folder, `${className}.h` );
-        const sourceFile = path.join( folder, `${className}.cpp` );
+        const headerFile = path.join( targetPath, `${className}.h` );
+        const sourceFile = path.join( targetPath, `${className}.cpp` );
 
         // Check if the files already exist
         if( fs.existsSync( headerFile ) || fs.existsSync( sourceFile )) {
