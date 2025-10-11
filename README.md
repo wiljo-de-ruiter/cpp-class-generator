@@ -7,6 +7,14 @@ Deze VS Code extensie genereert automatisch een C++ class (header + source) in d
 - Constructor & destructor
 - Veiligheid: bestanden worden niet overschreven
 
+## Er worden ook een paar code snippets geïnstalleerd
+
+- hdrguard om een header guard in te voegen
+- cfunc om een static C-style functie te implementeren
+- //-- om een functie splitter te maken
+- mfunc om een class member functie te implementeren
+- //## om een class of struct splitter te maken
+
 ## Gebruik
 
 1. Vul in de VS Code-instellingen (`cppClassGenerator.authorName`) je naam in.

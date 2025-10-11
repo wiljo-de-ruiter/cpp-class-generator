@@ -80,7 +80,10 @@ export function activate(context: vscode.ExtensionContext)
 
         const className = await vscode.window.showInputBox( {
             prompt: 'Enter the name of the C++ class here',
-            placeHolder: 'MyClass'
+            placeHolder: 'MyClass',
+            validateInput: (value) => {
+                return value.trim().length === 0 ? 'Class name cannot be empty' : null;
+            }
         });
 
         if( !className ) {

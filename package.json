@@ -29,7 +29,7 @@
         "cppClassGenerator.authorName": {
           "type": "string",
           "default": "Enter your name here",
-          "description": "Name of the devloper that is used in the copyright file header."
+          "description": "Name of the developer that is used in the copyright file header."
         },
         "cppClassGenerator.companyName": {
           "type": "string",
@@ -45,7 +45,17 @@
           "group": "2_cutcopypaste"
         }
       ]
-    }
+    },
+    "snippets": [
+      {
+        "language": "c",
+        "path": "./snippets/cpp.json"
+      },
+      {
+        "language": "cpp",
+        "path": "./snippets/cpp.json"
+      }
+    ]
   },
   "repository": {
     "type": "git",

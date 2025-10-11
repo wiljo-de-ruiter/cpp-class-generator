@@ -1,0 +1,67 @@
+{
+    "C++ Class Boilerplate": {
+        "prefix": "class",
+        "description": "C++ class definition",
+        "body": [
+            "class ${1:ClassName}", 
+            "{",
+            "public:",
+            "    ${1:ClassName}();",
+            "    ~$1();",
+            "",
+            "private:",
+            "    $2",
+            "};"
+        ]
+    },
+    "C++ Class Divider": {
+        "prefix": "//##",
+        "description": "C++ Class divider",
+        "body": [
+            "//#",
+            "//###########################################################################",
+            "//#"
+        ]
+    },
+    "Function Divider": {
+        "prefix": "//--",
+        "description": "Adds a function divider",
+        "body": [
+            "//---------------------------------------------------------------------------"
+        ]
+    },
+    "Class Function Template": {
+        "prefix": "mfunc",
+        "description": "Adds a class member function template",
+        "body": [
+            "//---------------------------------------------------------------------------",
+            "void ${1:class_name}::${2:function_name}()",
+            "{",
+            "    $0",
+            "}"
+        ]
+    },
+    "Static Function Template": {
+        "prefix": "cfunc",
+        "description": "Adds a static function template",
+        "body": [
+            "//---------------------------------------------------------------------------",
+            "void ${1:function_name}()",
+            "{",
+            "    $0",
+            "}"
+        ]
+    },
+    "Header Guard": {
+        "prefix": "hdrguard",
+        "description": "C++ header guard",
+        "body": [
+            "#ifndef ${1:HEADER_NAME}_H",
+            "#define $1_H",
+            "",
+            "$0",
+            "",
+            "#endif // $1_H"
+        ]
+    }
+}
