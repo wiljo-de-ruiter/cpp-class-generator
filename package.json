@@ -19,12 +19,17 @@
     "commands": [
       {
         "command": "cpp-class-generator.addDeclaration",
-        "title": "Add C++ Class declaration",
+        "title": "Add C++ Class Declaration",
+        "category": "C++"
+      },
+      {
+        "command": "cpp-class-generator.addClass",
+        "title": "Add C++ Class Declaration and Definition",
         "category": "C++"
       },
       {
         "command": "cpp-class-generator.addDefinition",
-        "title": "Add C++ Class definition",
+        "title": "Add C++ Class Definition",
         "category": "C++"
       },
       {
@@ -51,12 +56,17 @@
     "menus": {
       "editor/context": [
         {
-          "command": "cpp-class-generator.addDeclaration",
-          "when": "resourceExtname === .h",
+          "command": "cpp-class-generator.addDefinition",
+          "when": "resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         },
         {
-          "command": "cpp-class-generator.addDefinition",
+          "command": "cpp-class-generator.addDeclaration",
+          "when": "resourceExtname === .h || resourceExtname == .cpp",
+          "group": "2_cutcopypaste"
+        },
+        {
+          "command": "cpp-class-generator.addClass",
           "when": "resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         }

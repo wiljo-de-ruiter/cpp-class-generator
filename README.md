@@ -7,6 +7,10 @@ Deze VS Code extensie genereert automatisch een C++ class (header + source) in d
 - Constructor & destructor
 - Veiligheid: bestanden worden niet overschreven
 
+## Er worden ook een editor context items toegevoegd
+- Bij een header file om een class declaratie toe te voegen
+- Bij een source file om een class declaratie of definitie toe te voegen
+
 ## Er worden ook een paar code snippets geïnstalleerd
 
 - hdrguard om een header guard in te voegen

@@ -218,80 +218,102 @@ ${classDefinition}
 
         vscode.window.showInformationMessage(`C++ class ${className} succesfully created!`);
     });
-
+    //-----------------------------------------------------------------------
     let addClassDeclaration = vscode.commands.registerCommand('cpp-class-generator.addDeclaration', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
             return;
         }
-
-        const document = editor.document;
-        const fileName = document.fileName;
-        const ext = path.extname(fileName); // Haalt .cpp, .h, .hpp, enz. op
-
+        
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
             validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
         });
 
-        if (!className) return;
+        if( !className ) {
+            vscode.window.showErrorMessage('No C++ class name given');
+            return;
+        }
 
-        // let snippet = '';
+        let snippet = gBuildClassDeclaration( className );
 
-        // if( ext === '.h' || ext === '.hpp' )
-        // {
-            let snippet = gBuildClassDeclaration( className );
-        
-        // } else if( ext === '.cpp' )
-        // {
-        //     snippet = gBuildClassDefinition( className );
-        // } else {
-        //     vscode.window.showWarningMessage( `Unknown extension (${ext}. Only .h or .cpp are allowed!)`)
-        // }
+        const document = editor.document;
+        const cursorPos = editor.selection.active;
+        const insertLine = cursorPos.character === 0
+                ? cursorPos.line
+                : Math.min( cursorPos.line + 1, document.lineCount );
+        const insertPos = new vscode.Position( insertLine, 0 );                
+
         editor.edit( editBuilder => {
-            editBuilder.insert( editor.selection.active, snippet );
+            editBuilder.insert( insertPos, snippet );
         });
-
     });
-
+    //-----------------------------------------------------------------------
     let addClassDefinition  = vscode.commands.registerCommand('cpp-class-generator.addDefinition', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
             return;
         }
+        
+        const className = await vscode.window.showInputBox({
+            prompt: 'Enter the name of the C++ class here',
+            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+        });
+        
+        if( !className ) {
+            vscode.window.showErrorMessage('No C++ class name given');
+            return;
+        }
+
+        let snippet = gBuildClassDefinition( className );
 
         const document = editor.document;
-        const fileName = document.fileName;
-        const ext = path.extname(fileName); // Haalt .cpp, .h, .hpp, enz. op
+        const cursorPos = editor.selection.active;
+        const insertLine = cursorPos.character === 0
+                ? cursorPos.line
+                : Math.min( cursorPos.line + 1, document.lineCount );
+        const insertPos = new vscode.Position( insertLine, 0 );                
 
+        editor.edit( editBuilder => {
+            editBuilder.insert( insertPos, snippet );
+        });
+    });
+    //-----------------------------------------------------------------------
+    let addClass  = vscode.commands.registerCommand('cpp-class-generator.addClass', async ( uri: vscode.Uri | undefined ) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor found.");
+            return;
+        }
+        
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
             validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
         });
 
-        if (!className) return;
+        if( !className ) {
+            vscode.window.showErrorMessage('No C++ class name given');
+            return;
+        }
 
-        // let snippet = '';
+        const document = editor.document;
+        const cursorPos = editor.selection.active;
+        const insertLine = cursorPos.character === 0
+                ? cursorPos.line
+                : Math.min( cursorPos.line + 1, document.lineCount );
+        const insertPos = new vscode.Position( insertLine, 0 );        
 
-        // if( ext === '.h' || ext === '.hpp' )
-        // {
-        //     snippet = gBuildClassDeclaration( className );
-        
-        // } else if( ext === '.cpp' )
-        // {
-            let snippet = gBuildClassDefinition( className );
-        // } else {
-        //     vscode.window.showWarningMessage( `Unknown extension (${ext}. Only .h or .cpp are allowed!)`)
-        // }
+        let snippet = gBuildClassDeclaration( className )
+                    + gBuildClassDefinition( className );
+
         editor.edit( editBuilder => {
-            editBuilder.insert( editor.selection.active, snippet );
+            editBuilder.insert( insertPos, snippet );
         });
-
     });
-
-    context.subscriptions.push( addClassDeclaration, addClassDefinition, createClassFiles );
+    //-----------------------------------------------------------------------
+    context.subscriptions.push( addClass, addClassDeclaration, addClassDefinition, createClassFiles );
 }
 //---------------------------------------------------------------------------
 export function deactivate() {}
