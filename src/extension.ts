@@ -141,7 +141,7 @@ ${classHeaderLine}
 //#
 export function activate(context: vscode.ExtensionContext)
 {
-    let createClass = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async ( uri: vscode.Uri | undefined ) => {
+    let createClassFiles = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async ( uri: vscode.Uri | undefined ) => {
         let targetPath: string | undefined;
 
         if( uri && uri.fsPath ) {
@@ -219,7 +219,7 @@ ${classDefinition}
         vscode.window.showInformationMessage(`C++ class ${className} succesfully created!`);
     });
 
-    let addClass = vscode.commands.registerCommand('cpp-class-generator.addCppClass', async ( uri: vscode.Uri | undefined ) => {
+    let addClassDeclaration = vscode.commands.registerCommand('cpp-class-generator.addDeclaration', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
@@ -237,25 +237,61 @@ ${classDefinition}
 
         if (!className) return;
 
-        let snippet = '';
+        // let snippet = '';
 
-        if( ext === '.h' || ext === '.hpp' )
-        {
-            snippet = gBuildClassDeclaration( className );
+        // if( ext === '.h' || ext === '.hpp' )
+        // {
+            let snippet = gBuildClassDeclaration( className );
         
-        } else if( ext === '.cpp' )
-        {
-            snippet = gBuildClassDefinition( className );
-        } else {
-            vscode.window.showWarningMessage( `Unknown extension (${ext}. Only .h or .cpp are allowed!)`)
-        }
+        // } else if( ext === '.cpp' )
+        // {
+        //     snippet = gBuildClassDefinition( className );
+        // } else {
+        //     vscode.window.showWarningMessage( `Unknown extension (${ext}. Only .h or .cpp are allowed!)`)
+        // }
         editor.edit( editBuilder => {
             editBuilder.insert( editor.selection.active, snippet );
         });
 
     });
 
-    context.subscriptions.push( addClass, createClass );
+    let addClassDefinition  = vscode.commands.registerCommand('cpp-class-generator.addDefinition', async ( uri: vscode.Uri | undefined ) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor found.");
+            return;
+        }
+
+        const document = editor.document;
+        const fileName = document.fileName;
+        const ext = path.extname(fileName); // Haalt .cpp, .h, .hpp, enz. op
+
+        const className = await vscode.window.showInputBox({
+            prompt: 'Enter the name of the C++ class here',
+            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+        });
+
+        if (!className) return;
+
+        // let snippet = '';
+
+        // if( ext === '.h' || ext === '.hpp' )
+        // {
+        //     snippet = gBuildClassDeclaration( className );
+        
+        // } else if( ext === '.cpp' )
+        // {
+            let snippet = gBuildClassDefinition( className );
+        // } else {
+        //     vscode.window.showWarningMessage( `Unknown extension (${ext}. Only .h or .cpp are allowed!)`)
+        // }
+        editor.edit( editBuilder => {
+            editBuilder.insert( editor.selection.active, snippet );
+        });
+
+    });
+
+    context.subscriptions.push( addClassDeclaration, addClassDefinition, createClassFiles );
 }
 //---------------------------------------------------------------------------
 export function deactivate() {}
