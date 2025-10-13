@@ -18,6 +18,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "cpp-class-generator.addClassHeader",
+        "title": "Add C++ Class Comment Header",
+        "category": "C++"
+      },
+      {
         "command": "cpp-class-generator.addDeclaration",
         "title": "Add C++ Class Declaration",
         "category": "C++"
@@ -55,6 +60,11 @@
     },
     "menus": {
       "editor/context": [
+        {
+          "command": "cpp-class-generator.addClassHeader",
+          "when": "resourceExtname === .h || resourceExtname == .cpp",
+          "group": "2_cutcopypaste"
+        },
         {
           "command": "cpp-class-generator.addDefinition",
           "when": "resourceExtname == .cpp",

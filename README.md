@@ -10,6 +10,7 @@ Deze VS Code extensie genereert automatisch een C++ class (header + source) in d
 ## Er worden ook een editor context items toegevoegd
 - Bij een header file om een class declaratie toe te voegen
 - Bij een source file om een class declaratie of definitie toe te voegen
+- Om een class header te maken van de geselecteerde naam
 
 ## Er worden ook een paar code snippets geïnstalleerd
 

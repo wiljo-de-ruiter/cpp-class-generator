@@ -313,7 +313,55 @@ ${classDefinition}
         });
     });
     //-----------------------------------------------------------------------
-    context.subscriptions.push( addClass, addClassDeclaration, addClassDefinition, createClassFiles );
+    let addClassHeader  = vscode.commands.registerCommand('cpp-class-generator.addClassHeader', async ( uri: vscode.Uri | undefined ) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor found.");
+            return;
+        }
+        let className: string | undefined;
+        const document = editor.document;
+        const cursorPos = editor.selection.active;
+
+        const selection = editor.selection;
+        const selectedText = editor.document.getText(selection).trim();
+
+        const wordRange = document.getWordRangeAtPosition(cursorPos);
+        const wordUnderCursor = wordRange ? document.getText(wordRange).trim() : '';
+
+        if( selectedText && /^[A-Za-z_]\w*$/.test( selectedText )) {
+            className = selectedText;
+        } else if( wordUnderCursor && /^[A-Za-z_]\w*$/.test( wordUnderCursor )) {
+            className = wordUnderCursor;
+        } else {
+            className = await vscode.window.showInputBox({
+                prompt: 'Enter the name of the C++ class here',
+                validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+            });
+        }
+        if( !className ) {
+            return;
+        }
+        const insertPos = new vscode.Position( cursorPos.line, 0 );        
+
+        let classHeaderLine = gBuildClassHeaderLine( className );
+
+        let snippet = `//#
+//###########################################################################
+${classHeaderLine}
+//#
+//#
+${classHeaderLine}
+//###########################################################################
+//#
+`;
+
+        editor.edit( editBuilder => {
+            editBuilder.insert( insertPos, snippet );
+        });
+    });
+    //-----------------------------------------------------------------------
+    context.subscriptions.push( addClass, addClassHeader, addClassDeclaration, addClassDefinition, createClassFiles );
 }
 //---------------------------------------------------------------------------
 export function deactivate() {}
