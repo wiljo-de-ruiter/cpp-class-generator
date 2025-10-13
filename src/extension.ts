@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-//---------------------------------------------------------------------------
-async function openFiles(headerPath: string, sourcePath: string)
+//#
+//###########################################################################
+//#
+async function gOpenFiles(headerPath: string, sourcePath: string)
 {
     const doc1 = await vscode.workspace.openTextDocument( headerPath );
     await vscode.window.showTextDocument( doc1, { preview: false });
@@ -10,8 +12,10 @@ async function openFiles(headerPath: string, sourcePath: string)
     const doc2 = await vscode.workspace.openTextDocument( sourcePath );
     await vscode.window.showTextDocument( doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
 }
-//---------------------------------------------------------------------------
-function buildClassHeaderLine(className: string, totalLength = 77): string
+//#
+//###########################################################################
+//#
+function gBuildClassHeaderLine(className: string, totalLength = 77): string
 {
     const tokenLength = className.length + 2 + 1;   // Includes leading and trailing space and closing '#'
 
@@ -50,10 +54,94 @@ function buildClassHeaderLine(className: string, totalLength = 77): string
     }
     return line;
 }
+//#
+//###########################################################################
+//#
+function gCopyrightHeader(): string
+{
+    // Determine year and monthName
+    const now = new Date();
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = months[now.getMonth()];
+    const year = now.getFullYear();
+
+    const config = vscode.workspace.getConfiguration();
+
+    const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
+    const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
+
+    return `/* Copyright (C) ${year}, ${companyName}
+ * All rights reserved.
+ *
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ *
+ * Written by ${authorName}, ${monthName} ${year}
+ */
+`;
+}
+//#
+//###########################################################################
+//#
+function gBuildClassDeclaration( className: string ): string
+{
+    const classHeaderLine = gBuildClassHeaderLine( className )
+
+    return `//#
+//###########################################################################
+${classHeaderLine}
+//#
+class ${className}
+{
+public:
+    ${className}();
+    ~${className}();
+    //-----------------------------------------------------------------------
+
+protected:
+private:
+
+};
+//#
+${classHeaderLine}
+//###########################################################################
+//#
+`;
+}
+//#
+//###########################################################################
+//#
+function gBuildClassDefinition( className: string ): string
+{
+    const classHeaderLine = gBuildClassHeaderLine( className )
+    return `//#
+//###########################################################################
+${classHeaderLine}
+//#
+${className}::${className}()
+{
+    // constructor
+}
 //---------------------------------------------------------------------------
+${className}::~${className}()
+{
+    // destructor
+}
+//#
+${classHeaderLine}
+//###########################################################################
+//#
+`;
+}
+//#
+//###########################################################################
+//#
 export function activate(context: vscode.ExtensionContext)
 {
-    let disposable = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async ( uri: vscode.Uri | undefined ) => {
+    let createClass = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async ( uri: vscode.Uri | undefined ) => {
         let targetPath: string | undefined;
 
         if( uri && uri.fsPath ) {
@@ -81,19 +169,13 @@ export function activate(context: vscode.ExtensionContext)
         const className = await vscode.window.showInputBox( {
             prompt: 'Enter the name of the C++ class here',
             placeHolder: 'MyClass',
-            validateInput: (value) => {
-                return value.trim().length === 0 ? 'Class name cannot be empty' : null;
-            }
+            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
         });
 
         if( !className ) {
             vscode.window.showErrorMessage('No C++ class name given');
             return;
         }
-
-
-        const config = vscode.workspace.getConfiguration();
-
         const headerFile = path.join( targetPath, `${className}.h` );
         const sourceFile = path.join( targetPath, `${className}.cpp` );
 
@@ -103,31 +185,11 @@ export function activate(context: vscode.ExtensionContext)
             return;
         }
 
-        // Determine year and monthName
-        const now = new Date();
-        const months = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ];
-        const monthName = months[now.getMonth()];
-        const year = now.getFullYear();
-
-        const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
-        const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
-
-        const copyrightHeader =
-`/* Copyright (C) ${year}, ${companyName}
- * All rights reserved.
- *
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- *
- * Written by ${authorName}, ${monthName} ${year}
- */
-`;
-
-        const classHeaderLine = buildClassHeaderLine( className )
+        const copyrightHeader = gCopyrightHeader();
+        const classHeaderLine = gBuildClassHeaderLine( className );
         const headerGuard = `${className.toUpperCase()}_H`;
+        const classDeclaration = gBuildClassDeclaration( className );
+        const classDefinition = gBuildClassDefinition( className );
 
         const headerContent = `${copyrightHeader}
 #ifndef ${headerGuard}
@@ -136,25 +198,7 @@ export function activate(context: vscode.ExtensionContext)
 //#include <SystemFiles>
 //---------------------------------------------------------------------------
 //#include "CustomFiles"
-//#
-//###########################################################################
-${classHeaderLine}
-//#
-class ${className}
-{
-public:
-    ${className}();
-    ~${className}();
-    //-----------------------------------------------------------------------
-
-protected:
-private:
-
-};
-//#
-${classHeaderLine}
-//###########################################################################
-//#
+${classDeclaration}
 #endif // ${headerGuard}
 `;
 
@@ -164,34 +208,54 @@ ${classHeaderLine}
 //#include <SystemFiles>
 //---------------------------------------------------------------------------
 //#include "CustomFiles"
-//#
-//###########################################################################
-${classHeaderLine}
-//#
-${className}::${className}()
-{
-    // constructor
-}
-//---------------------------------------------------------------------------
-${className}::~${className}()
-{
-    // destructor
-}
-//#
-${classHeaderLine}
-//###########################################################################
-//#
+${classDefinition}
 `;
 
         fs.writeFileSync( headerFile, headerContent );
         fs.writeFileSync( sourceFile, sourceContent );
 
-        openFiles( headerFile, sourceFile );
+        gOpenFiles( headerFile, sourceFile );
 
         vscode.window.showInformationMessage(`C++ class ${className} succesfully created!`);
     });
 
-    context.subscriptions.push(disposable);
+    let addClass = vscode.commands.registerCommand('cpp-class-generator.addCppClass', async ( uri: vscode.Uri | undefined ) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor found.");
+            return;
+        }
+
+        const document = editor.document;
+        const fileName = document.fileName;
+        const ext = path.extname(fileName); // Haalt .cpp, .h, .hpp, enz. op
+
+        const className = await vscode.window.showInputBox({
+            prompt: 'Enter the name of the C++ class here',
+            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+        });
+
+        if (!className) return;
+
+        let snippet = '';
+
+        if( ext === '.h' || ext === '.hpp' )
+        {
+            snippet = gBuildClassDeclaration( className );
+        
+        } else if( ext === '.cpp' )
+        {
+            snippet = gBuildClassDefinition( className );
+        } else {
+            vscode.window.showWarningMessage( `Unknown extension (${ext}. Only .h or .cpp are allowed!)`)
+        }
+        editor.edit( editBuilder => {
+            editBuilder.insert( editor.selection.active, snippet );
+        });
+
+    });
+
+    context.subscriptions.push( addClass, createClass );
 }
 //---------------------------------------------------------------------------
 export function deactivate() {}
