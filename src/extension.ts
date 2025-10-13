@@ -4,6 +4,13 @@ import * as fs from 'fs';
 //#
 //###########################################################################
 //#
+function gbIsValidClassName( text: string ): boolean 
+{
+    return /^[A-Za-z_]\w*(::[A-Za-z_]\w*)*$/.test( text.trim());
+}
+//#
+//###########################################################################
+//#
 async function gOpenFiles(headerPath: string, sourcePath: string)
 {
     const doc1 = await vscode.workspace.openTextDocument( headerPath );
@@ -169,7 +176,7 @@ export function activate(context: vscode.ExtensionContext)
         const className = await vscode.window.showInputBox( {
             prompt: 'Enter the name of the C++ class here',
             placeHolder: 'MyClass',
-            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+            validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
         });
 
         if( !className ) {
@@ -228,7 +235,7 @@ ${classDefinition}
         
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
-            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+            validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
         });
 
         if( !className ) {
@@ -259,7 +266,7 @@ ${classDefinition}
         
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
-            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+            validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
         });
         
         if( !className ) {
@@ -290,7 +297,7 @@ ${classDefinition}
         
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
-            validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+            validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
         });
 
         if( !className ) {
@@ -329,14 +336,14 @@ ${classDefinition}
         const wordRange = document.getWordRangeAtPosition(cursorPos);
         const wordUnderCursor = wordRange ? document.getText(wordRange).trim() : '';
 
-        if( selectedText && /^[A-Za-z_]\w*$/.test( selectedText )) {
+        if( selectedText && gbIsValidClassName( selectedText )) {
             className = selectedText;
-        } else if( wordUnderCursor && /^[A-Za-z_]\w*$/.test( wordUnderCursor )) {
+        } else if( wordUnderCursor && gbIsValidClassName( wordUnderCursor )) {
             className = wordUnderCursor;
         } else {
             className = await vscode.window.showInputBox({
                 prompt: 'Enter the name of the C++ class here',
-                validateInput: text => /^[A-Za-z_]\w*$/.test(text) ? null : 'Invalid class name.'
+                validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
             });
         }
         if( !className ) {
