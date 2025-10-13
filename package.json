@@ -18,6 +18,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "cpp-class-generator.addCppClass",
+        "title": "Add C++ Class declaration or definition",
+        "category": "C++"
+      },
+      {
         "command": "cpp-class-generator.createCppClass",
         "title": "Create C++ Class",
         "category": "C++"
@@ -39,6 +44,13 @@
       }
     },
     "menus": {
+      "editor/context": [
+        {
+          "command": "cpp-class-generator.addCppClass",
+          "when": "editorLangId == cpp || editorLangId == c",
+          "group": "2_cutcopypaste"
+        }
+      ],
       "explorer/context": [
         {
           "command": "cpp-class-generator.createCppClass",
