@@ -81,13 +81,13 @@ function gCopyrightHeader(): string
     const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
 
     return `/* Copyright (C) ${year}, ${companyName}
- * All rights reserved.
- *
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- *
- * Written by ${authorName}, ${monthName} ${year}
- */
+** All rights reserved.
+**
+** Unauthorized copying of this file, via any medium is strictly prohibited
+** Proprietary and confidential
+**
+** Written by ${authorName}, ${monthName} ${year}
+**/
 `;
 }
 //#
