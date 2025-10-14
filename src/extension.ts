@@ -73,7 +73,7 @@ function gBuildClassHeaderLine(className: string, totalLength = 77): string
 //#
 //###########################################################################
 //#
-function gCopyrightHeader(): string
+function gWrittenBy(): string
 {
     // Determine year and monthName
     const now = new Date();
@@ -89,13 +89,56 @@ function gCopyrightHeader(): string
     const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
     const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
 
+    return `Written by ${authorName}, ${monthName} ${year}`;
+}
+//#
+//###########################################################################
+//#
+function gUpdatedBy(): string
+{
+    // Determine year and monthName
+    const now = new Date();
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = months[now.getMonth()];
+    const year = now.getFullYear();
+
+    const config = vscode.workspace.getConfiguration();
+
+    const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
+    const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
+
+    return `Updated by ${authorName}, ${monthName} ${year}`;
+}
+//#
+//###########################################################################
+//#
+function gCopyrightHeader(): string
+{
+    // Determine year and monthName
+    const now = new Date();
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = months[now.getMonth()];
+    const year = now.getFullYear();
+
+    const config = vscode.workspace.getConfiguration();
+
+    const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
+    const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
+    const writtenBy = gWrittenBy();
+
     return `/* Copyright (C) ${year}, ${companyName}
 ** All rights reserved.
 **
 ** Unauthorized copying of this file, via any medium is strictly prohibited
 ** Proprietary and confidential
 **
-** Written by ${authorName}, ${monthName} ${year}
+** ${writtenBy}
 */
 `;
 }
@@ -420,22 +463,40 @@ ${classDefinition}
             vscode.window.showErrorMessage("No active editor found.");
             return;
         }
+        let index = 0;
         const document = editor.document;
-        const firstLine = document.lineAt( 0 ).text;
+        let sourceLine = document.lineAt( index ).text;
+        const writtenBy = gWrittenBy();
+        const updatedBy = gUpdatedBy();
 
-        if( firstLine.startsWith( "/* Copyright" )) {
-            vscode.window.showWarningMessage('Copyright header already exists!');
-            return;
-        }
-        const insertPos = new vscode.Position( 0, 0 );
-        const copyrightHeader = gCopyrightHeader();
+        if( sourceLine.startsWith( "/* Copyright" )) {
+            do {
+                index += 1;
+                sourceLine = document.lineAt( index ).text;
+                if( sourceLine.includes( writtenBy ) || sourceLine.includes( updatedBy )) {
+                    vscode.window.showInformationMessage('Copyright header already exists!');
+                    return;
+                }
+            } while( sourceLine != "*/" );
 
-        let snippet = `${copyrightHeader}
+            let snippet = `** ${updatedBy}
 `;
-
-        editor.edit( editBuilder => {
-            editBuilder.insert( insertPos, snippet );
-        });
+            editor.edit( editBuilder => {
+                editBuilder.insert( new vscode.Position( index, 0 ), snippet );
+            })
+            vscode.window.showInformationMessage('Copyright header updated!');
+        } else {
+            const insertPos = new vscode.Position( 0, 0 );
+            const copyrightHeader = gCopyrightHeader();
+    
+            let snippet = `${copyrightHeader}
+`;
+    
+            editor.edit( editBuilder => {
+                editBuilder.insert( insertPos, snippet );
+            });
+            vscode.window.showInformationMessage('Copyright header created!');
+        }
     });
     //-----------------------------------------------------------------------
     let insertClassHeader = vscode.commands.registerCommand('cpp-class-generator.insertClassHeader', async ( uri: vscode.Uri | undefined ) => {
