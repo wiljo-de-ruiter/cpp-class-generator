@@ -4,7 +4,7 @@ import * as fs from 'fs';
 //#
 //###########################################################################
 //#
-function gbIsValidClassName( text: string ): boolean 
+function gbIsValidClassName( text: string ): boolean
 {
     return /^[A-Za-z_]\w*(::[A-Za-z_]\w*)*$/.test( text.trim());
 }
@@ -383,6 +383,30 @@ ${classDefinition}
 
         let snippet = gBuildClassDeclaration( className )
                     + gBuildClassDefinition( className );
+
+        editor.edit( editBuilder => {
+            editBuilder.insert( insertPos, snippet );
+        });
+    });
+    //-----------------------------------------------------------------------
+    let addCopyright  = vscode.commands.registerCommand('cpp-class-generator.addCopyright', async ( uri: vscode.Uri | undefined ) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor found.");
+            return;
+        }
+        const document = editor.document;
+        const firstLine = document.lineAt( 0 ).text;
+
+        if( firstLine.startsWith( "/* Copyright" )) {
+            vscode.window.showWarningMessage('Copyright header already exists!');
+            return;
+        }
+        const insertPos = new vscode.Position( 0, 0 );
+        const copyrightHeader = gCopyrightHeader();
+
+        let snippet = `${copyrightHeader}
+`;
 
         editor.edit( editBuilder => {
             editBuilder.insert( insertPos, snippet );

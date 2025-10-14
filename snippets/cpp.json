@@ -1,23 +1,9 @@
 {
-    "Copyright header": {
-        "prefix": "copyright",
-        "description": "Adds a copyright header",
-        "body": [
-"/* Copyright (C) ${1:Year}, Syrinx Industrial Electronics",
-" * All rights reserved.",
-" *",
-" * Unauthorized copying of this file, via any medium is strictly prohibited",
-" * Proprietary and confidential",
-" *",
-" * Written by ${2:Author}, ${3:Month} $1",
-" */"
-        ]
-    },
     "C++ Class Boilerplate": {
         "prefix": "class",
         "description": "C++ class definition",
         "body": [
-            "class ${1:ClassName}", 
+            "class ${1:ClassName}",
             "{",
             "public:",
             "    ${1:ClassName}();",

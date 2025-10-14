@@ -23,6 +23,11 @@
         "category": "C++"
       },
       {
+        "command": "cpp-class-generator.addCopyright",
+        "title": "Add copyright comment header to top of file",
+        "category": "C++"
+      },
+      {
         "command": "cpp-class-generator.addDeclaration",
         "title": "Add C++ Class Declaration",
         "category": "C++"
@@ -62,6 +67,11 @@
       "editor/context": [
         {
           "command": "cpp-class-generator.addClassHeader",
+          "when": "resourceExtname === .h || resourceExtname == .cpp",
+          "group": "2_cutcopypaste"
+        },
+        {
+          "command": "cpp-class-generator.addCopyright",
           "when": "resourceExtname === .h || resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         },
