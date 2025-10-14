@@ -1,3 +1,12 @@
+/* Copyright (C) 2025, Syrinx Industrial Electronics
+** All rights reserved.
+**
+** Unauthorized copying of this file, via any medium is strictly prohibited
+** Proprietary and confidential
+**
+** Written by Wiljo de Ruiter, October 2025
+*/
+
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -87,20 +96,42 @@ function gCopyrightHeader(): string
 ** Proprietary and confidential
 **
 ** Written by ${authorName}, ${monthName} ${year}
-**/
+*/
 `;
 }
 //#
 //###########################################################################
 //#
-function gBuildClassDeclaration( className: string ): string
+function gBuildClassHeader( className: string ): string
 {
     const classHeaderLine = gBuildClassHeaderLine( className )
 
     return `//#
 //###########################################################################
 ${classHeaderLine}
+//#`;
+}
 //#
+//###########################################################################
+//#
+function gBuildClassFooter( className: string ): string
+{
+    const classHeaderLine = gBuildClassHeaderLine( className )
+
+    return `//#
+${classHeaderLine}
+//###########################################################################
+//#`;
+}
+//#
+//###########################################################################
+//#
+function gBuildClassDeclaration( className: string ): string
+{
+    const classHeader = gBuildClassHeader( className )
+    const classFooter = gBuildClassFooter( className )
+
+    return `${classHeader}
 class ${className}
 {
 public:
@@ -110,12 +141,8 @@ public:
 
 protected:
 private:
-
 };
-//#
-${classHeaderLine}
-//###########################################################################
-//#
+${classFooter}
 `;
 }
 //#
@@ -123,11 +150,10 @@ ${classHeaderLine}
 //#
 function gBuildClassDefinition( className: string ): string
 {
-    const classHeaderLine = gBuildClassHeaderLine( className )
-    return `//#
-//###########################################################################
-${classHeaderLine}
-//#
+    const classHeader = gBuildClassHeader( className )
+    const classFooter = gBuildClassFooter( className )
+
+    return `${classHeader}
 ${className}::${className}()
 {
     // constructor
@@ -137,10 +163,7 @@ ${className}::~${className}()
 {
     // destructor
 }
-//#
-${classHeaderLine}
-//###########################################################################
-//#
+${classFooter}
 `;
 }
 //#
@@ -218,7 +241,7 @@ function gGetSourcePath( aTargetPath: string ): string
 //#
 export function activate(context: vscode.ExtensionContext)
 {
-    let createClassFiles = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async ( uri: vscode.Uri | undefined ) => {
+    let createFilesForNewClass = vscode.commands.registerCommand('cpp-class-generator.createFilesForNewClass', async ( uri: vscode.Uri | undefined ) => {
         let targetPath: string | undefined;
 
         if( uri && uri.fsPath ) {
@@ -297,7 +320,7 @@ ${classDefinition}
         vscode.window.showInformationMessage(`C++ class ${className} succesfully created!`);
     });
     //-----------------------------------------------------------------------
-    let addClassDeclaration = vscode.commands.registerCommand('cpp-class-generator.addDeclaration', async ( uri: vscode.Uri | undefined ) => {
+    let insertClassDeclaration = vscode.commands.registerCommand('cpp-class-generator.insertClassDeclaration', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
@@ -328,7 +351,7 @@ ${classDefinition}
         });
     });
     //-----------------------------------------------------------------------
-    let addClassDefinition  = vscode.commands.registerCommand('cpp-class-generator.addDefinition', async ( uri: vscode.Uri | undefined ) => {
+    let insertClassDefinition  = vscode.commands.registerCommand('cpp-class-generator.insertClassDefinition', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
@@ -359,7 +382,7 @@ ${classDefinition}
         });
     });
     //-----------------------------------------------------------------------
-    let addClass  = vscode.commands.registerCommand('cpp-class-generator.addClass', async ( uri: vscode.Uri | undefined ) => {
+    let insertNewClass  = vscode.commands.registerCommand('cpp-class-generator.insertNewClass', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
@@ -391,7 +414,7 @@ ${classDefinition}
         });
     });
     //-----------------------------------------------------------------------
-    let addCopyright  = vscode.commands.registerCommand('cpp-class-generator.addCopyright', async ( uri: vscode.Uri | undefined ) => {
+    let insertCopyright  = vscode.commands.registerCommand('cpp-class-generator.insertCopyright', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
@@ -415,7 +438,7 @@ ${classDefinition}
         });
     });
     //-----------------------------------------------------------------------
-    let addClassHeader  = vscode.commands.registerCommand('cpp-class-generator.addClassHeader', async ( uri: vscode.Uri | undefined ) => {
+    let insertClassHeader  = vscode.commands.registerCommand('cpp-class-generator.insertClassHeader', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
@@ -463,7 +486,7 @@ ${classHeaderLine}
         });
     });
     //-----------------------------------------------------------------------
-    context.subscriptions.push( addClass, addClassHeader, addClassDeclaration, addClassDefinition, createClassFiles );
+    context.subscriptions.push( insertCopyright, createFilesForNewClass, insertClassHeader, insertClassDeclaration, insertClassDefinition, insertNewClass );
 }
 //---------------------------------------------------------------------------
 export function deactivate() {}

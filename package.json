@@ -13,37 +13,37 @@
   ],
   "main": "./out/extension.js",
   "activationEvents": [
-    "onCommand:cpp-class-generator.createCppClass"
+    "onCommand:cpp-class-generator.createFilesForNewClass"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "cpp-class-generator.addClassHeader",
-        "title": "Insert C++ Class Comment Header",
-        "category": "C++"
-      },
-      {
-        "command": "cpp-class-generator.addCopyright",
+        "command": "cpp-class-generator.insertCopyright",
         "title": "Insert copyright file header to top of file",
         "category": "C++"
       },
       {
-        "command": "cpp-class-generator.addDeclaration",
+        "command": "cpp-class-generator.insertClassHeader",
+        "title": "Insert C++ Class Comment Header",
+        "category": "C++"
+      },
+      {
+        "command": "cpp-class-generator.insertClassDeclaration",
         "title": "Insert C++ Class Declaration",
         "category": "C++"
       },
       {
-        "command": "cpp-class-generator.addClass",
-        "title": "Insert C++ Class Declaration and Definition",
-        "category": "C++"
-      },
-      {
-        "command": "cpp-class-generator.addDefinition",
+        "command": "cpp-class-generator.insertClassDefinition",
         "title": "Insert C++ Class Definition",
         "category": "C++"
       },
       {
-        "command": "cpp-class-generator.createCppClass",
+        "command": "cpp-class-generator.insertNewClass",
+        "title": "Insert C++ Class Declaration and Definition",
+        "category": "C++"
+      },
+      {
+        "command": "cpp-class-generator.createFilesForNewClass",
         "title": "Create files for new C++ Class",
         "category": "C++"
       }
@@ -66,39 +66,38 @@
     "menus": {
       "editor/context": [
         {
-          "command": "cpp-class-generator.addClassHeader",
+          "command": "cpp-class-generator.insertCopyright",
+          "group": "2_cutcopypaste"
+        },
+        {
+          "command": "cpp-class-generator.insertClassHeader",
           "when": "resourceExtname === .h || resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         },
         {
-          "command": "cpp-class-generator.addCopyright",
-          "when": "resourceExtname === .h || resourceExtname == .cpp",
-          "group": "2_cutcopypaste"
-        },
-        {
-          "command": "cpp-class-generator.addDefinition",
+          "command": "cpp-class-generator.insertClassDefinition",
           "when": "resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         },
         {
-          "command": "cpp-class-generator.addDeclaration",
+          "command": "cpp-class-generator.insertClassDeclaration",
           "when": "resourceExtname === .h || resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         },
         {
-          "command": "cpp-class-generator.addClass",
+          "command": "cpp-class-generator.insertNewClass",
           "when": "resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         },
         {
-          "command": "cpp-class-generator.createCppClass",
+          "command": "cpp-class-generator.createFilesForNewClass",
           "when": "resourceExtname === .h || resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         }
       ],
       "explorer/context": [
         {
-          "command": "cpp-class-generator.createCppClass",
+          "command": "cpp-class-generator.createFilesForNewClass",
           "group": "2_cutcopypaste"
         }
       ]
