@@ -159,14 +159,13 @@ function gReplaceEnd( source: string, ending: string, replacement: string ): str
 function gGetHeaderPath( aTargetPath: string ): string
 {
     let targetPath = aTargetPath;
+    const sep = path.sep;       // '\' on Windows, '/' on Mac/Linux
 
-    vscode.window.showInformationMessage( `Target path is: ${targetPath}` );
+    if( targetPath.toLowerCase().endsWith( `${sep}src` )) {
+        targetPath = gReplaceEnd( targetPath, `${sep}src`, `${sep}inc` );
 
-    if( targetPath.toLowerCase().endsWith( '/src' )) {
-        targetPath = gReplaceEnd( targetPath, "/src", "/inc" );
-
-    } else if( targetPath.toLowerCase().endsWith( '/source' )) {
-        targetPath = gReplaceEnd( targetPath, "/source", "/inc" );
+    } else if( targetPath.toLowerCase().endsWith( `${sep}source` )) {
+        targetPath = gReplaceEnd( targetPath, `${sep}source`, `${sep}inc` );
 
     } else {
         return targetPath;
@@ -176,13 +175,13 @@ function gGetHeaderPath( aTargetPath: string ): string
         return targetPath;
     }
     //* Now check if folder .../include/ exists
-    targetPath = gReplaceEnd( targetPath, "/inc", "/include" );
+    targetPath = gReplaceEnd( targetPath, `${sep}inc`, `${sep}include` );
 
     if( fs.existsSync( targetPath ) && fs.statSync( targetPath ).isDirectory()) {
         return targetPath;
     }
     //* Just return original
-    return gReplaceEnd( aTargetPath, "/include", "" );
+    return aTargetPath;
 }
 //#
 //###########################################################################
@@ -190,12 +189,13 @@ function gGetHeaderPath( aTargetPath: string ): string
 function gGetSourcePath( aTargetPath: string ): string
 {
     let targetPath = aTargetPath;
+    const sep = path.sep;       // '\' on Windows, '/' on Mac/Linux
 
-    if( targetPath.toLowerCase().endsWith( '/inc' )) {
-        targetPath = gReplaceEnd( targetPath, "/inc", "/src" );
+    if( targetPath.toLowerCase().endsWith( `${sep}inc` )) {
+        targetPath = gReplaceEnd( targetPath, `${sep}inc`, `${sep}src` );
 
-    } else if( targetPath.toLowerCase().endsWith( '/include' )) {
-        targetPath = gReplaceEnd( targetPath, "/include", "/src" );
+    } else if( targetPath.toLowerCase().endsWith( `${sep}include` )) {
+        targetPath = gReplaceEnd( targetPath, `${sep}include`, `${sep}src` );
 
     } else {
         return targetPath;
@@ -205,13 +205,13 @@ function gGetSourcePath( aTargetPath: string ): string
         return targetPath;
     }
     //* Now check if folder .../source/ exists
-    targetPath = gReplaceEnd( targetPath, "/src", "/source" );
+    targetPath = gReplaceEnd( targetPath, `${sep}src`, `${sep}source` );
 
     if( fs.existsSync( targetPath ) && fs.statSync( targetPath ).isDirectory()) {
         return targetPath;
     }
     //* Just return original
-    return gReplaceEnd( aTargetPath, "/source", "" );
+    return aTargetPath;
 }
 //#
 //###########################################################################
