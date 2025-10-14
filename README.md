@@ -1,16 +1,30 @@
 # C++ Class Generator Extension
 
-Deze VS Code extensie genereert automatisch een C++ class (header + source) in de huidige map, met:
+Deze extensie genereert automatisch een C++ class (header + source) in de correcte map, met:
 
-- Copyright header inclusief jouw naam en bedrijfsnaam
+- Copyright file header inclusief jouw naam en bedrijfsnaam
 - Header guards
 - Constructor & destructor
 - Veiligheid: bestanden worden niet overschreven
 
+## Gebruik
+
+1. Ga naar de VS Code-instellingen (`Ctrl+,`)
+1.1. Zoek in de "Extensions" naar "C++ Class Generator"
+1.2. Vul je naam in bij "Author Name".
+1.3. Vul je bedrijfsnaam in bij "Company Name".
+2. Open een `.cpp` bestand of werk in een C++ project.
+3. Gebruik de command palette (`Ctrl+Shift+P`) → “C++: Create files for new C++ Class”.
+4. Selecteer de editor context menu "Create files for new C++ Class"
+5. Of selecteer de file explorer context menu "Create files for new C++ Class"
+6. Voer de class naam in en de ClassName.h en ClassName.cpp bestanden worden gegenereerd.
+7. Als de actieve map inc, include, src of source bevat, dan worden de files op de juiste plek gemaakt.
+
 ## Er worden ook editor context items toegevoegd
-- Bij een header file om een class declaratie toe te voegen
-- Bij een source file om een class declaratie of definitie toe te voegen
-- Om een class header te maken van de geselecteerde naam
+- Om een copyright file header te maken
+- Om een class declaratie toe te voegen aan een header file
+- Om een class declaratie en/of definitie toe te voegen aan een source file
+- Om een class commentaal header/footer te maken van de geselecteerde class naam
 
 ## Er worden ook een paar code snippets geïnstalleerd
 
@@ -19,13 +33,4 @@ Deze VS Code extensie genereert automatisch een C++ class (header + source) in d
 - //-- om een functie splitter te maken
 - mfunc om een class member functie te implementeren
 - //## om een class of struct splitter te maken
-
-## Gebruik
-
-1. Vul in de VS Code-instellingen (`cppClassGenerator.authorName`) je naam in.
-2. Vul in de VS Code-instellingen (`cppClassGenerator.companyName`) je bedrijfsnaam in.
-3. Open een `.cpp` bestand of werk in een C++ project.
-4. Gebruik de command palette (`Ctrl+Shift+P`) → “Create C++ Class”.
-5. Of gebruik het context menu in de explorer -> "Create C++ Class".
-6. Voer de klassenaam in → .h en .cpp bestanden worden gegenereerd.
 
