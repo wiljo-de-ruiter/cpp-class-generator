@@ -15,16 +15,16 @@ Deze extensie genereert automatisch een C++ class (header + source) in de correc
 1.3. Vul je bedrijfsnaam in bij "Company Name".
 2. Open een `.cpp` bestand of werk in een C++ project.
 3. Gebruik de command palette (`Ctrl+Shift+P`) → “C++: Create files for new C++ Class”.
-4. Selecteer de editor context menu "Create files for new C++ Class"
+4. Of selecteer de editor context menu "Create files for new C++ Class"
 5. Of selecteer de file explorer context menu "Create files for new C++ Class"
 6. Voer de class naam in en de ClassName.h en ClassName.cpp bestanden worden gegenereerd.
-7. Als de actieve map inc, include, src of source bevat, dan worden de files op de juiste plek gemaakt.
+7. Als de actieve map op inc, include, src of source eindigt, dan worden de files op de juiste plek gemaakt.
 
 ## Er worden ook editor context items toegevoegd
 - Om een copyright file header te maken
-- Om een class declaratie toe te voegen aan een header file
-- Om een class declaratie en/of definitie toe te voegen aan een source file
-- Om een class commentaal header/footer te maken van de geselecteerde class naam
+- Om een class declaratie toe te voegen aan de huidige actieve header file
+- Om een class declaratie en/of definitie toe te voegen aan de huidige actieve source file
+- Om een class header/footer te maken van de geselecteerde class naam
 
 ## Er worden ook een paar code snippets geïnstalleerd
 
@@ -33,4 +33,3 @@ Deze extensie genereert automatisch een C++ class (header + source) in de correc
 - //-- om een functie splitter te maken
 - mfunc om een class member functie te implementeren
 - //## om een class of struct splitter te maken
-
