@@ -13,11 +13,11 @@ function gbIsValidClassName( text: string ): boolean
 //#
 async function gOpenFiles(headerPath: string, sourcePath: string)
 {
-    const doc1 = await vscode.workspace.openTextDocument( headerPath );
-    await vscode.window.showTextDocument( doc1, { preview: false });
-
     const doc2 = await vscode.workspace.openTextDocument( sourcePath );
-    await vscode.window.showTextDocument( doc2, { preview: false, viewColumn: vscode.ViewColumn.Beside });
+    await vscode.window.showTextDocument( doc2, { preview: false });
+
+    const doc1 = await vscode.workspace.openTextDocument( headerPath );
+    await vscode.window.showTextDocument( doc1, { preview: false, viewColumn: vscode.ViewColumn.Beside });
 }
 //#
 //###########################################################################
