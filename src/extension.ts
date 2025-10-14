@@ -438,7 +438,7 @@ ${classDefinition}
         });
     });
     //-----------------------------------------------------------------------
-    let insertClassHeader  = vscode.commands.registerCommand('cpp-class-generator.insertClassHeader', async ( uri: vscode.Uri | undefined ) => {
+    let insertClassHeader = vscode.commands.registerCommand('cpp-class-generator.insertClassHeader', async ( uri: vscode.Uri | undefined ) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor found.");
@@ -467,22 +467,20 @@ ${classDefinition}
         if( !className ) {
             return;
         }
-        const insertPos = new vscode.Position( cursorPos.line, 0 );
+        const insertHeader = new vscode.Position( cursorPos.line, 0 );
+        const insertFooter = new vscode.Position( Math.min( cursorPos.line + 1, document.lineCount ), 0 );
 
-        let classHeaderLine = gBuildClassHeaderLine( className );
+        let classHeader = gBuildClassHeader( className );
+        let classFooter = gBuildClassFooter( className );
 
-        let snippet = `//#
-//###########################################################################
-${classHeaderLine}
-//#
-//#
-${classHeaderLine}
-//###########################################################################
-//#
+        let header = `${classHeader}
+`;
+        let footer = `${classFooter}
 `;
 
         editor.edit( editBuilder => {
-            editBuilder.insert( insertPos, snippet );
+            editBuilder.insert( insertFooter, footer );
+            editBuilder.insert( insertHeader, header );
         });
     });
     //-----------------------------------------------------------------------
