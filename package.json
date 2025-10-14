@@ -39,7 +39,7 @@
       },
       {
         "command": "cpp-class-generator.createCppClass",
-        "title": "Create C++ Class",
+        "title": "Create C++ Class in new header/source files",
         "category": "C++"
       }
     ],
@@ -78,6 +78,11 @@
         {
           "command": "cpp-class-generator.addClass",
           "when": "resourceExtname == .cpp",
+          "group": "2_cutcopypaste"
+        },
+        {
+          "command": "cpp-class-generator.createCppClass",
+          "when": "resourceExtname === .h || resourceExtname == .cpp",
           "group": "2_cutcopypaste"
         }
       ],

@@ -146,6 +146,74 @@ ${classHeaderLine}
 //#
 //###########################################################################
 //#
+function gReplaceEnd( source: string, ending: string, replacement: string ): string
+{
+    if( source.toLowerCase().endsWith( ending.toLowerCase())) {
+        return source.slice( 0, -ending.length ) + replacement;
+    }
+    return source;
+}
+//#
+//###########################################################################
+//#
+function gGetHeaderPath( aTargetPath: string ): string
+{
+    let targetPath = aTargetPath;
+
+    if( targetPath.toLowerCase().endsWith( '/src' )) {
+        targetPath = gReplaceEnd( targetPath, "/src", "/inc" );
+
+    } else if( targetPath.toLowerCase().endsWith( '/source' )) {
+        targetPath = gReplaceEnd( targetPath, "/source", "/inc" );
+
+    } else {
+        return targetPath;
+    }
+    //* Now check if folder .../inc/ exists
+    if( fs.existsSync( targetPath ) && fs.statSync( targetPath ).isDirectory()) {
+        return targetPath;
+    }
+    //* Now check if folder .../include/ exists
+    targetPath = gReplaceEnd( targetPath, "/inc", "/include" );
+
+    if( fs.existsSync( targetPath ) && fs.statSync( targetPath ).isDirectory()) {
+        return targetPath;
+    }
+    //* Just return original
+    return gReplaceEnd( aTargetPath, "/include", "" );
+}
+//#
+//###########################################################################
+//#
+function gGetSourcePath( aTargetPath: string ): string
+{
+    let targetPath = aTargetPath;
+
+    if( targetPath.toLowerCase().endsWith( '/inc' )) {
+        targetPath = gReplaceEnd( targetPath, "/inc", "/src" );
+
+    } else if( targetPath.toLowerCase().endsWith( '/include' )) {
+        targetPath = gReplaceEnd( targetPath, "/include", "/src" );
+
+    } else {
+        return targetPath;
+    }
+    //* Now check if folder .../src/ exists
+    if( fs.existsSync( targetPath ) && fs.statSync( targetPath ).isDirectory()) {
+        return targetPath;
+    }
+    //* Now check if folder .../source/ exists
+    targetPath = gReplaceEnd( targetPath, "/src", "/source" );
+
+    if( fs.existsSync( targetPath ) && fs.statSync( targetPath ).isDirectory()) {
+        return targetPath;
+    }
+    //* Just return original
+    return gReplaceEnd( aTargetPath, "/source", "" );
+}
+//#
+//###########################################################################
+//#
 export function activate(context: vscode.ExtensionContext)
 {
     let createClassFiles = vscode.commands.registerCommand('cpp-class-generator.createCppClass', async ( uri: vscode.Uri | undefined ) => {
@@ -163,7 +231,7 @@ export function activate(context: vscode.ExtensionContext)
         } else if( vscode.window.activeTextEditor ) {
             const activeFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
             targetPath = path.dirname( activeFilePath );
-        
+
         } else if( vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ) {
             targetPath = vscode.workspace.workspaceFolders[ 0 ].uri.fsPath;
         }
@@ -183,8 +251,9 @@ export function activate(context: vscode.ExtensionContext)
             vscode.window.showErrorMessage('No C++ class name given');
             return;
         }
-        const headerFile = path.join( targetPath, `${className}.h` );
-        const sourceFile = path.join( targetPath, `${className}.cpp` );
+        //* Now determine where we are: inc, include, src or source
+        const headerFile = path.join( gGetHeaderPath( targetPath ), `${className}.h` );
+        const sourceFile = path.join( gGetSourcePath( targetPath ), `${className}.cpp` );
 
         // Check if the files already exist
         if( fs.existsSync( headerFile ) || fs.existsSync( sourceFile )) {
@@ -232,7 +301,7 @@ ${classDefinition}
             vscode.window.showErrorMessage("No active editor found.");
             return;
         }
-        
+
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
             validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
@@ -250,7 +319,7 @@ ${classDefinition}
         const insertLine = cursorPos.character === 0
                 ? cursorPos.line
                 : Math.min( cursorPos.line + 1, document.lineCount );
-        const insertPos = new vscode.Position( insertLine, 0 );                
+        const insertPos = new vscode.Position( insertLine, 0 );
 
         editor.edit( editBuilder => {
             editBuilder.insert( insertPos, snippet );
@@ -263,12 +332,12 @@ ${classDefinition}
             vscode.window.showErrorMessage("No active editor found.");
             return;
         }
-        
+
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
             validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
         });
-        
+
         if( !className ) {
             vscode.window.showErrorMessage('No C++ class name given');
             return;
@@ -281,7 +350,7 @@ ${classDefinition}
         const insertLine = cursorPos.character === 0
                 ? cursorPos.line
                 : Math.min( cursorPos.line + 1, document.lineCount );
-        const insertPos = new vscode.Position( insertLine, 0 );                
+        const insertPos = new vscode.Position( insertLine, 0 );
 
         editor.edit( editBuilder => {
             editBuilder.insert( insertPos, snippet );
@@ -294,7 +363,7 @@ ${classDefinition}
             vscode.window.showErrorMessage("No active editor found.");
             return;
         }
-        
+
         const className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
             validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
@@ -310,7 +379,7 @@ ${classDefinition}
         const insertLine = cursorPos.character === 0
                 ? cursorPos.line
                 : Math.min( cursorPos.line + 1, document.lineCount );
-        const insertPos = new vscode.Position( insertLine, 0 );        
+        const insertPos = new vscode.Position( insertLine, 0 );
 
         let snippet = gBuildClassDeclaration( className )
                     + gBuildClassDefinition( className );
@@ -349,7 +418,7 @@ ${classDefinition}
         if( !className ) {
             return;
         }
-        const insertPos = new vscode.Position( cursorPos.line, 0 );        
+        const insertPos = new vscode.Position( cursorPos.line, 0 );
 
         let classHeaderLine = gBuildClassHeaderLine( className );
 
