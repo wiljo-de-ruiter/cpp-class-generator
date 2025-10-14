@@ -160,6 +160,8 @@ function gGetHeaderPath( aTargetPath: string ): string
 {
     let targetPath = aTargetPath;
 
+    vscode.window.showInformationMessage( `Target path is: ${targetPath}` );
+
     if( targetPath.toLowerCase().endsWith( '/src' )) {
         targetPath = gReplaceEnd( targetPath, "/src", "/inc" );
 
