@@ -19,32 +19,32 @@
     "commands": [
       {
         "command": "cpp-class-generator.addClassHeader",
-        "title": "Add C++ Class Comment Header",
+        "title": "Insert C++ Class Comment Header",
         "category": "C++"
       },
       {
         "command": "cpp-class-generator.addCopyright",
-        "title": "Add copyright comment header to top of file",
+        "title": "Insert copyright file header to top of file",
         "category": "C++"
       },
       {
         "command": "cpp-class-generator.addDeclaration",
-        "title": "Add C++ Class Declaration",
+        "title": "Insert C++ Class Declaration",
         "category": "C++"
       },
       {
         "command": "cpp-class-generator.addClass",
-        "title": "Add C++ Class Declaration and Definition",
+        "title": "Insert C++ Class Declaration and Definition",
         "category": "C++"
       },
       {
         "command": "cpp-class-generator.addDefinition",
-        "title": "Add C++ Class Definition",
+        "title": "Insert C++ Class Definition",
         "category": "C++"
       },
       {
         "command": "cpp-class-generator.createCppClass",
-        "title": "Create C++ Class in new header/source files",
+        "title": "Create files for new C++ Class",
         "category": "C++"
       }
     ],
