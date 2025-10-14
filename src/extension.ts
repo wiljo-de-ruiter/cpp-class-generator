@@ -73,72 +73,67 @@ function gBuildClassHeaderLine(className: string, totalLength = 77): string
 //#
 //###########################################################################
 //#
-function gWrittenBy(): string
+function gCurrentYear(): string
 {
-    // Determine year and monthName
+    const now = new Date();
+    return `${now.getFullYear()}`;
+}
+//#
+//###########################################################################
+//#
+function gCurrentMonth(): string
+{
     const now = new Date();
     const months = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
-    const monthName = months[now.getMonth()];
-    const year = now.getFullYear();
-
+    return `${months[now.getMonth()]}`;   
+}
+//#
+//###########################################################################
+//#
+function gAuthorName(): string
+{
     const config = vscode.workspace.getConfiguration();
 
-    const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
-    const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
+    return config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
+}
+//#
+//###########################################################################
+//#
+function gCompanyName(): string
+{
+    const config = vscode.workspace.getConfiguration();
 
-    return `Written by ${authorName}, ${monthName} ${year}`;
+    return config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
+}
+//#
+//###########################################################################
+//#
+function gWrittenBy(): string
+{
+    return `Written by ${gAuthorName()}, ${gCurrentMonth()} ${gCurrentYear()}`;
 }
 //#
 //###########################################################################
 //#
 function gUpdatedBy(): string
 {
-    // Determine year and monthName
-    const now = new Date();
-    const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    const monthName = months[now.getMonth()];
-    const year = now.getFullYear();
-
-    const config = vscode.workspace.getConfiguration();
-
-    const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
-    const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
-
-    return `Updated by ${authorName}, ${monthName} ${year}`;
+    return `Updated by ${gAuthorName()}, ${gCurrentMonth()} ${gCurrentYear()}`;
 }
 //#
 //###########################################################################
 //#
 function gCopyrightHeader(): string
 {
-    // Determine year and monthName
-    const now = new Date();
-    const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    const monthName = months[now.getMonth()];
-    const year = now.getFullYear();
-
-    const config = vscode.workspace.getConfiguration();
-
-    const authorName = config.get<string>("cppClassGenerator.authorName") || "Unknown Author";
-    const companyName = config.get<string>("cppClassGenerator.companyName") || "Unknown Company";
-    const writtenBy = gWrittenBy();
-
-    return `/* Copyright (C) ${year}, ${companyName}
+    return `/* Copyright (C) ${gCurrentYear()}, ${gCompanyName()}
 ** All rights reserved.
 **
 ** Unauthorized copying of this file, via any medium is strictly prohibited
 ** Proprietary and confidential
 **
-** ${writtenBy}
+** ${gWrittenBy()}
 */
 `;
 }
