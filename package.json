@@ -19,7 +19,7 @@
     "commands": [
       {
         "command": "cpp-class-generator.insertCopyright",
-        "title": "Insert copyright file header to top of file",
+        "title": "Insert or update copyright file header at top of file",
         "category": "C++"
       },
       {
