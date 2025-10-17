@@ -1,6 +1,6 @@
 # C++ Class Generator Extension
 
-Deze extensie genereert automatisch een C++ class (header + source) in de correcte map, met:
+Deze extensie genereert automatisch een C++ class (header + source files) in de correcte map, met:
 
 - Copyright file header inclusief jouw naam en bedrijfsnaam
 - Header guards
@@ -10,9 +10,9 @@ Deze extensie genereert automatisch een C++ class (header + source) in de correc
 ## Gebruik
 
 1. Ga naar de VS Code-instellingen (`Ctrl+,`)
-1.1. Zoek in de "Extensions" naar "C++ Class Generator"
-1.2. Vul je naam in bij "Author Name".
-1.3. Vul je bedrijfsnaam in bij "Company Name".
+- Zoek in de "Extensions" naar "C++ Class Generator"
+- Vul je naam in bij "Author Name".
+- Vul je bedrijfsnaam in bij "Company Name".
 2. Open een `.cpp` bestand of werk in een C++ project.
 3. Gebruik de command palette (`Ctrl+Shift+P`) → “C++: Create files for new C++ Class”.
 4. Of selecteer de editor context menu "Create files for new C++ Class"
