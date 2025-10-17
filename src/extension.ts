@@ -88,7 +88,7 @@ function gCurrentMonth(): string
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
-    return `${months[now.getMonth()]}`;   
+    return `${months[now.getMonth()]}`;
 }
 //#
 //###########################################################################
@@ -467,15 +467,14 @@ ${classDefinition}
         if( sourceLine.startsWith( "/* Copyright" )) {
             do {
                 index += 1;
-                sourceLine = document.lineAt( index ).text;
+                sourceLine = document.lineAt( index ).text.trim();
                 if( sourceLine.includes( writtenBy ) || sourceLine.includes( updatedBy )) {
-                    vscode.window.showInformationMessage('Copyright header already exists!');
+                    vscode.window.showInformationMessage('Copyright header already exists and is up to date!');
                     return;
                 }
             } while( sourceLine != "*/" );
 
-            let snippet = `** ${updatedBy}
-`;
+            let snippet = `** ${updatedBy}${"\n"}`;
             editor.edit( editBuilder => {
                 editBuilder.insert( new vscode.Position( index, 0 ), snippet );
             })
@@ -483,10 +482,9 @@ ${classDefinition}
         } else {
             const insertPos = new vscode.Position( 0, 0 );
             const copyrightHeader = gCopyrightHeader();
-    
-            let snippet = `${copyrightHeader}
-`;
-    
+
+            let snippet = `${copyrightHeader}${"\n"}`;
+
             editor.edit( editBuilder => {
                 editBuilder.insert( insertPos, snippet );
             });
@@ -529,10 +527,8 @@ ${classDefinition}
         let classHeader = gBuildClassHeader( className );
         let classFooter = gBuildClassFooter( className );
 
-        let header = `${classHeader}
-`;
-        let footer = `${classFooter}
-`;
+        let header = `${classHeader}${"\n"}`;
+        let footer = `${classFooter}${"\n"}`;
 
         editor.edit( editBuilder => {
             editBuilder.insert( insertFooter, footer );
