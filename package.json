@@ -2,7 +2,7 @@
   "name": "cpp-class-generator",
   "displayName": "C++ Class Generator",
   "description": "Genereert automatisch een C++ class (header + source) met copyright en structuur.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "Wiljo de Ruiter",
   "icon": "media/icon.png",
   "engines": {
