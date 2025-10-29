@@ -22,11 +22,23 @@ function gbIsValidClassName( text: string ): boolean
 //#
 async function gOpenFiles(headerPath: string, sourcePath: string)
 {
-    const doc2 = await vscode.workspace.openTextDocument( sourcePath );
-    await vscode.window.showTextDocument( doc2, { preview: false });
+    const editors = vscode.window.visibleTextEditors;
+    let targetColumn;
 
-    const doc1 = await vscode.workspace.openTextDocument( headerPath );
-    await vscode.window.showTextDocument( doc1, { preview: false, viewColumn: vscode.ViewColumn.Beside });
+    // Bepaal waar de nieuwe bestanden moeten worden geopend
+    if( editors.length < 3 ) {
+        // Maak een nieuwe editor (naast de huidige)
+        targetColumn = vscode.ViewColumn.Beside;
+    } else {
+        // Gebruik de kolom van de laatst geopende editor
+        const lastEditor = editors[ editors.length - 1 ];
+        targetColumn = lastEditor.viewColumn;
+    }
+    const sourceDoc = await vscode.workspace.openTextDocument( sourcePath );
+    const sourceEditor = await vscode.window.showTextDocument( sourceDoc, { preview: false, viewColumn: targetColumn });
+
+    const headerDoc = await vscode.workspace.openTextDocument( headerPath );
+    await vscode.window.showTextDocument( headerDoc, { preview: false, viewColumn: sourceEditor.viewColumn });
 }
 //#
 //###########################################################################
