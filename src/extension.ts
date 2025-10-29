@@ -289,6 +289,26 @@ function gGetSourcePath( aTargetPath: string ): string
 //#
 //###########################################################################
 //#
+function gInsertCopyrightHeader()
+{
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage("No active editor found.");
+        return;
+    }
+    const insertPos = new vscode.Position( 0, 0 );
+    const copyrightHeader = gCopyrightHeader();
+
+    let snippet = `${copyrightHeader}${"\n"}`;
+
+    editor.edit( editBuilder => {
+        editBuilder.insert( insertPos, snippet );
+    });
+    vscode.window.showInformationMessage('Copyright header created!');
+}
+//#
+//###########################################################################
+//#
 export function activate(context: vscode.ExtensionContext)
 {
     let createFilesForNewClass = vscode.commands.registerCommand('cpp-class-generator.createFilesForNewClass', async ( uri: vscode.Uri | undefined ) => {
@@ -310,7 +330,6 @@ export function activate(context: vscode.ExtensionContext)
         } else if( vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ) {
             targetPath = vscode.workspace.workspaceFolders[ 0 ].uri.fsPath;
         }
-        // const editor = vscode.window.activeTextEditor;
         if( !targetPath ) {
             vscode.window.showErrorMessage('No valid folder found to create the class files!');
             return;
@@ -476,12 +495,18 @@ ${classDefinition}
         const match = text.match(/\/\*[\s\S]*?\*\//);
 
         if( !match ) {
-            vscode.window.showInformationMessage( "No matching header comment block found!" );
+            gInsertCopyrightHeader();
             return;
         }
         const commentBlock = match[ 0 ];
         const startIndex = match.index ?? 0;
         const endIndex = startIndex + commentBlock.length;
+
+        // Controleer of het begint met "/* Copyright"
+        if(!/^\/\*\s*Copyright/i.test( commentBlock )) {
+            gInsertCopyrightHeader();
+            return;
+        }
 
         //* Now replace any " *" with "**"
         const lines = commentBlock.split( '\n' ).map( line => {
@@ -501,12 +526,12 @@ ${classDefinition}
         const writtenPresent = lines.some( line => line.includes( writtenBy ));
         const updatedPresent = lines.some( line => line.includes( updatedBy ));
 
-        if( !writtenPresent && !updatedPresent ) {
+        if( writtenPresent || updatedPresent ) {
+            vscode.window.showInformationMessage('Copyright header already exists and is up to date!');
+        } else {
             let insertIndex = lines.length - 1;
             lines.splice( insertIndex, 0, `** ${updatedBy}` );
             vscode.window.showInformationMessage('Copyright header updated!');
-        } else {
-            vscode.window.showInformationMessage('Copyright header already exists and is up to date!');
         }
         const newBlock = lines.join( '\n' );
 
