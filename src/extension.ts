@@ -470,38 +470,51 @@ ${classDefinition}
             vscode.window.showErrorMessage("No active editor found.");
             return;
         }
-        let index = 0;
         const document = editor.document;
-        let sourceLine = document.lineAt( index ).text;
+        const text = document.getText();
+        //* Now look for the first comment block between /* and */
+        const match = text.match(/\/\*[\s\S]*?\*\//);
+
+        if( !match ) {
+            vscode.window.showInformationMessage( "No matching header comment block found!" );
+            return;
+        }
+        const commentBlock = match[ 0 ];
+        const startIndex = match.index ?? 0;
+        const endIndex = startIndex + commentBlock.length;
+
+        //* Now replace any " *" with "**"
+        const lines = commentBlock.split( '\n' ).map( line => {
+            // WHen this is the closing line: " */" → "*/"
+            if(/\s+\*\/\s*$/.test( line )) {
+                return line.replace(/\s+\*\/\s*$/, '*/');
+            }
+            if(/^\s+\*/.test( line )) {
+                return line.replace(/^(\s)\*/, '**' );
+            }
+            return line;
+        });
+
+        //* Now update the copyright notice
         const writtenBy = gWrittenBy();
         const updatedBy = gUpdatedBy();
+        const writtenPresent = lines.some( line => line.includes( writtenBy ));
+        const updatedPresent = lines.some( line => line.includes( updatedBy ));
 
-        if( sourceLine.startsWith( "/* Copyright" )) {
-            do {
-                index += 1;
-                sourceLine = document.lineAt( index ).text.trim();
-                if( sourceLine.includes( writtenBy ) || sourceLine.includes( updatedBy )) {
-                    vscode.window.showInformationMessage('Copyright header already exists and is up to date!');
-                    return;
-                }
-            } while( sourceLine != "*/" );
-
-            let snippet = `** ${updatedBy}${"\n"}`;
-            editor.edit( editBuilder => {
-                editBuilder.insert( new vscode.Position( index, 0 ), snippet );
-            })
+        if( !writtenPresent && !updatedPresent ) {
+            let insertIndex = lines.length - 1;
+            lines.splice( insertIndex, 0, `** ${updatedBy}` );
             vscode.window.showInformationMessage('Copyright header updated!');
         } else {
-            const insertPos = new vscode.Position( 0, 0 );
-            const copyrightHeader = gCopyrightHeader();
-
-            let snippet = `${copyrightHeader}${"\n"}`;
-
-            editor.edit( editBuilder => {
-                editBuilder.insert( insertPos, snippet );
-            });
-            vscode.window.showInformationMessage('Copyright header created!');
+            vscode.window.showInformationMessage('Copyright header already exists and is up to date!');
         }
+        const newBlock = lines.join( '\n' );
+
+        //* Now replace the range of the block
+        const range = new vscode.Range( editor.document.positionAt( startIndex ), editor.document.positionAt( endIndex ));
+        editor.edit( editBuilder => {
+            editBuilder.replace( range, newBlock );
+        })
     });
     //-----------------------------------------------------------------------
     let insertClassHeader = vscode.commands.registerCommand('cpp-class-generator.insertClassHeader', async ( uri: vscode.Uri | undefined ) => {
