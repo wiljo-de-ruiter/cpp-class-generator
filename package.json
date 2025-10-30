@@ -53,12 +53,12 @@
       "properties": {
         "cppClassGenerator.authorName": {
           "type": "string",
-          "default": "Enter your name here",
+          "default": "Enter name of developer here",
           "description": "Name of the developer that is used in the copyright file header."
         },
         "cppClassGenerator.companyName": {
           "type": "string",
-          "default": "Enter your company name here",
+          "default": "Enter name of company here",
           "description": "Name of the company that is used in the copyright file header."
         }
       }
