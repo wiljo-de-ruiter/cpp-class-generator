@@ -309,59 +309,58 @@ function gInsertCopyrightHeader()
 //#
 //###########################################################################
 //#
-export function activate(context: vscode.ExtensionContext)
+export async function gCreateFilesForNewClass( uri: vscode.Uri | undefined )
 {
-    let createFilesForNewClass = vscode.commands.registerCommand('cpp-class-generator.createFilesForNewClass', async ( uri: vscode.Uri | undefined ) => {
-        let targetPath: string | undefined;
+    let targetPath: string | undefined;
 
-        if( uri && uri.fsPath ) {
-            const stat = await vscode.workspace.fs.stat( uri );
-            if( stat.type === vscode.FileType.Directory ) {
-                // Geselecteerd item is een map
-                targetPath = uri.fsPath;
-            } else {
-                // Geselecteerd item is een bestand – gebruik de map waarin het zit
-                targetPath = path.dirname( uri.fsPath );
-            }
-        } else if( vscode.window.activeTextEditor ) {
-            const activeFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
-            targetPath = path.dirname( activeFilePath );
-
-        } else if( vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ) {
-            targetPath = vscode.workspace.workspaceFolders[ 0 ].uri.fsPath;
+    if( uri && uri.fsPath ) {
+        const stat = await vscode.workspace.fs.stat( uri );
+        if( stat.type === vscode.FileType.Directory ) {
+            // Geselecteerd item is een map
+            targetPath = uri.fsPath;
+        } else {
+            // Geselecteerd item is een bestand – gebruik de map waarin het zit
+            targetPath = path.dirname( uri.fsPath );
         }
-        if( !targetPath ) {
-            vscode.window.showErrorMessage('No valid folder found to create the class files!');
-            return;
-        }
+    } else if( vscode.window.activeTextEditor ) {
+        const activeFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
+        targetPath = path.dirname( activeFilePath );
 
-        const className = await vscode.window.showInputBox( {
-            prompt: 'Enter the name of the C++ class here',
-            placeHolder: 'MyClass',
-            validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
-        });
+    } else if( vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ) {
+        targetPath = vscode.workspace.workspaceFolders[ 0 ].uri.fsPath;
+    }
+    if( !targetPath ) {
+        vscode.window.showErrorMessage('No valid folder found to create the class files!');
+        return;
+    }
 
-        if( !className ) {
-            vscode.window.showErrorMessage('No C++ class name given');
-            return;
-        }
-        //* Now determine where we are: inc, include, src or source
-        const headerFile = path.join( gGetHeaderPath( targetPath ), `${className}.h` );
-        const sourceFile = path.join( gGetSourcePath( targetPath ), `${className}.cpp` );
+    const className = await vscode.window.showInputBox( {
+        prompt: 'Enter the name of the C++ class here',
+        placeHolder: 'MyClass',
+        validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
+    });
 
-        // Check if the files already exist
-        if( fs.existsSync( headerFile ) || fs.existsSync( sourceFile )) {
-            vscode.window.showErrorMessage( `Can't create class ${className}: the files already exist.` );
-            return;
-        }
+    if( !className ) {
+        vscode.window.showErrorMessage('No C++ class name given');
+        return;
+    }
+    //* Now determine where we are: inc, include, src or source
+    const headerFile = path.join( gGetHeaderPath( targetPath ), `${className}.h` );
+    const sourceFile = path.join( gGetSourcePath( targetPath ), `${className}.cpp` );
 
-        const copyrightHeader = gCopyrightHeader();
-        const classHeaderLine = gBuildClassHeaderLine( className );
-        const headerGuard = `${className.toUpperCase()}_H`;
-        const classDeclaration = gBuildClassDeclaration( className );
-        const classDefinition = gBuildClassDefinition( className );
+    // Check if the files already exist
+    if( fs.existsSync( headerFile ) || fs.existsSync( sourceFile )) {
+        vscode.window.showErrorMessage( `Can't create class ${className}: the files already exist.` );
+        return;
+    }
 
-        const headerContent = `${copyrightHeader}
+    const copyrightHeader = gCopyrightHeader();
+    const classHeaderLine = gBuildClassHeaderLine( className );
+    const headerGuard = `${className.toUpperCase()}_H`;
+    const classDeclaration = gBuildClassDeclaration( className );
+    const classDefinition = gBuildClassDefinition( className );
+
+    const headerContent = `${copyrightHeader}
 #ifndef ${headerGuard}
 #define ${headerGuard}
 //---------------------------------------------------------------------------
@@ -372,7 +371,7 @@ ${classDeclaration}
 #endif // ${headerGuard}
 `;
 
-        const sourceContent = `${copyrightHeader}
+    const sourceContent = `${copyrightHeader}
 #include "${className}.h"
 //---------------------------------------------------------------------------
 //#include <SystemFiles>
@@ -381,210 +380,236 @@ ${classDeclaration}
 ${classDefinition}
 `;
 
-        fs.writeFileSync( headerFile, headerContent );
-        fs.writeFileSync( sourceFile, sourceContent );
+    fs.writeFileSync( headerFile, headerContent );
+    fs.writeFileSync( sourceFile, sourceContent );
 
-        gOpenFiles( headerFile, sourceFile );
+    gOpenFiles( headerFile, sourceFile );
 
-        vscode.window.showInformationMessage(`C++ class ${className} succesfully created!`);
+    vscode.window.showInformationMessage(`C++ class ${className} succesfully created!`);
+}
+//#
+//###########################################################################
+//#
+export async function gInsertClassDeclaration( uri: vscode.Uri | undefined )
+{
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage("No active editor found.");
+        return;
+    }
+
+    const className = await vscode.window.showInputBox({
+        prompt: 'Enter the name of the C++ class here',
+        validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
     });
-    //-----------------------------------------------------------------------
-    let insertClassDeclaration = vscode.commands.registerCommand('cpp-class-generator.insertClassDeclaration', async ( uri: vscode.Uri | undefined ) => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage("No active editor found.");
-            return;
-        }
 
-        const className = await vscode.window.showInputBox({
+    if( !className ) {
+        vscode.window.showErrorMessage('No C++ class name given');
+        return;
+    }
+
+    let snippet = gBuildClassDeclaration( className );
+
+    const document = editor.document;
+    const cursorPos = editor.selection.active;
+    const insertLine = cursorPos.character === 0
+            ? cursorPos.line
+            : Math.min( cursorPos.line + 1, document.lineCount );
+    const insertPos = new vscode.Position( insertLine, 0 );
+
+    editor.edit( editBuilder => {
+        editBuilder.insert( insertPos, snippet );
+    });
+}
+//#
+//###########################################################################
+//#
+export async function gInsertClassDefinition( uri: vscode.Uri | undefined )
+{
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage("No active editor found.");
+        return;
+    }
+
+    const className = await vscode.window.showInputBox({
+        prompt: 'Enter the name of the C++ class here',
+        validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
+    });
+
+    if( !className ) {
+        vscode.window.showErrorMessage('No C++ class name given');
+        return;
+    }
+
+    let snippet = gBuildClassDefinition( className );
+
+    const document = editor.document;
+    const cursorPos = editor.selection.active;
+    const insertLine = cursorPos.character === 0
+            ? cursorPos.line
+            : Math.min( cursorPos.line + 1, document.lineCount );
+    const insertPos = new vscode.Position( insertLine, 0 );
+
+    editor.edit( editBuilder => {
+        editBuilder.insert( insertPos, snippet );
+    });
+}
+//#
+//###########################################################################
+//#
+export async function gInsertNewClass( uri: vscode.Uri | undefined )
+{
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage("No active editor found.");
+        return;
+    }
+
+    const className = await vscode.window.showInputBox({
+        prompt: 'Enter the name of the C++ class here',
+        validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
+    });
+
+    if( !className ) {
+        vscode.window.showErrorMessage('No C++ class name given');
+        return;
+    }
+
+    const document = editor.document;
+    const cursorPos = editor.selection.active;
+    const insertLine = cursorPos.character === 0
+            ? cursorPos.line
+            : Math.min( cursorPos.line + 1, document.lineCount );
+    const insertPos = new vscode.Position( insertLine, 0 );
+
+    let snippet = gBuildClassDeclaration( className )
+                + gBuildClassDefinition( className );
+
+    editor.edit( editBuilder => {
+        editBuilder.insert( insertPos, snippet );
+    });
+}
+//#
+//###########################################################################
+//#
+export async function gInsertCopyright( uri: vscode.Uri | undefined )
+{
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage("No active editor found.");
+        return;
+    }
+    const document = editor.document;
+    const text = document.getText();
+    //* Now look for the first comment block between /* and */
+    const match = text.match(/\/\*[\s\S]*?\*\//);
+
+    if( !match ) {
+        gInsertCopyrightHeader();
+        return;
+    }
+    const commentBlock = match[ 0 ];
+    const startIndex = match.index ?? 0;
+    const endIndex = startIndex + commentBlock.length;
+
+    // Controleer of het begint met "/* Copyright"
+    if(!/^\/\*\s*Copyright/i.test( commentBlock )) {
+        gInsertCopyrightHeader();
+        return;
+    }
+
+    //* Now replace any " *" with "**"
+    const lines = commentBlock.split( '\n' ).map( line => {
+        // WHen this is the closing line: " */" → "*/"
+        if(/\s+\*\/\s*$/.test( line )) {
+            return line.replace(/\s+\*\/\s*$/, '*/');
+        }
+        if(/^\s+\*/.test( line )) {
+            return line.replace(/^(\s)\*/, '**' );
+        }
+        return line;
+    });
+
+    //* Now update the copyright notice
+    const writtenBy = gWrittenBy();
+    const updatedBy = gUpdatedBy();
+    const writtenPresent = lines.some( line => line.includes( writtenBy ));
+    const updatedPresent = lines.some( line => line.includes( updatedBy ));
+
+    if( writtenPresent || updatedPresent ) {
+        vscode.window.showInformationMessage('Copyright header already exists and is up to date!');
+    } else {
+        let insertIndex = lines.length - 1;
+        lines.splice( insertIndex, 0, `** ${updatedBy}` );
+        vscode.window.showInformationMessage('Copyright header updated!');
+    }
+    const newBlock = lines.join( '\n' );
+
+    //* Now replace the range of the block
+    const range = new vscode.Range( editor.document.positionAt( startIndex ), editor.document.positionAt( endIndex ));
+    editor.edit( editBuilder => {
+        editBuilder.replace( range, newBlock );
+    })
+}
+//#
+//###########################################################################
+//#
+export async function gInsertClassHeader( uri: vscode.Uri | undefined )
+{
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage("No active editor found.");
+        return;
+    }
+    let className: string | undefined;
+    const document = editor.document;
+    const cursorPos = editor.selection.active;
+
+    const selection = editor.selection;
+    const selectedText = editor.document.getText(selection).trim();
+
+    const wordRange = document.getWordRangeAtPosition(cursorPos);
+    const wordUnderCursor = wordRange ? document.getText(wordRange).trim() : '';
+
+    if( selectedText && gbIsValidClassName( selectedText )) {
+        className = selectedText;
+    } else if( wordUnderCursor && gbIsValidClassName( wordUnderCursor )) {
+        className = wordUnderCursor;
+    } else {
+        className = await vscode.window.showInputBox({
             prompt: 'Enter the name of the C++ class here',
             validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
         });
+    }
+    if( !className ) {
+        return;
+    }
+    const insertHeader = new vscode.Position( cursorPos.line, 0 );
+    const insertFooter = new vscode.Position( Math.min( cursorPos.line + 1, document.lineCount ), 0 );
 
-        if( !className ) {
-            vscode.window.showErrorMessage('No C++ class name given');
-            return;
-        }
+    let classHeader = gBuildClassHeader( className );
+    let classFooter = gBuildClassFooter( className );
 
-        let snippet = gBuildClassDeclaration( className );
+    let header = `${classHeader}${"\n"}`;
+    let footer = `${classFooter}${"\n"}`;
 
-        const document = editor.document;
-        const cursorPos = editor.selection.active;
-        const insertLine = cursorPos.character === 0
-                ? cursorPos.line
-                : Math.min( cursorPos.line + 1, document.lineCount );
-        const insertPos = new vscode.Position( insertLine, 0 );
-
-        editor.edit( editBuilder => {
-            editBuilder.insert( insertPos, snippet );
-        });
+    editor.edit( editBuilder => {
+        editBuilder.insert( insertFooter, footer );
+        editBuilder.insert( insertHeader, header );
     });
-    //-----------------------------------------------------------------------
-    let insertClassDefinition  = vscode.commands.registerCommand('cpp-class-generator.insertClassDefinition', async ( uri: vscode.Uri | undefined ) => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage("No active editor found.");
-            return;
-        }
-
-        const className = await vscode.window.showInputBox({
-            prompt: 'Enter the name of the C++ class here',
-            validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
-        });
-
-        if( !className ) {
-            vscode.window.showErrorMessage('No C++ class name given');
-            return;
-        }
-
-        let snippet = gBuildClassDefinition( className );
-
-        const document = editor.document;
-        const cursorPos = editor.selection.active;
-        const insertLine = cursorPos.character === 0
-                ? cursorPos.line
-                : Math.min( cursorPos.line + 1, document.lineCount );
-        const insertPos = new vscode.Position( insertLine, 0 );
-
-        editor.edit( editBuilder => {
-            editBuilder.insert( insertPos, snippet );
-        });
-    });
-    //-----------------------------------------------------------------------
-    let insertNewClass  = vscode.commands.registerCommand('cpp-class-generator.insertNewClass', async ( uri: vscode.Uri | undefined ) => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage("No active editor found.");
-            return;
-        }
-
-        const className = await vscode.window.showInputBox({
-            prompt: 'Enter the name of the C++ class here',
-            validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
-        });
-
-        if( !className ) {
-            vscode.window.showErrorMessage('No C++ class name given');
-            return;
-        }
-
-        const document = editor.document;
-        const cursorPos = editor.selection.active;
-        const insertLine = cursorPos.character === 0
-                ? cursorPos.line
-                : Math.min( cursorPos.line + 1, document.lineCount );
-        const insertPos = new vscode.Position( insertLine, 0 );
-
-        let snippet = gBuildClassDeclaration( className )
-                    + gBuildClassDefinition( className );
-
-        editor.edit( editBuilder => {
-            editBuilder.insert( insertPos, snippet );
-        });
-    });
-    //-----------------------------------------------------------------------
-    let insertCopyright  = vscode.commands.registerCommand('cpp-class-generator.insertCopyright', async ( uri: vscode.Uri | undefined ) => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage("No active editor found.");
-            return;
-        }
-        const document = editor.document;
-        const text = document.getText();
-        //* Now look for the first comment block between /* and */
-        const match = text.match(/\/\*[\s\S]*?\*\//);
-
-        if( !match ) {
-            gInsertCopyrightHeader();
-            return;
-        }
-        const commentBlock = match[ 0 ];
-        const startIndex = match.index ?? 0;
-        const endIndex = startIndex + commentBlock.length;
-
-        // Controleer of het begint met "/* Copyright"
-        if(!/^\/\*\s*Copyright/i.test( commentBlock )) {
-            gInsertCopyrightHeader();
-            return;
-        }
-
-        //* Now replace any " *" with "**"
-        const lines = commentBlock.split( '\n' ).map( line => {
-            // WHen this is the closing line: " */" → "*/"
-            if(/\s+\*\/\s*$/.test( line )) {
-                return line.replace(/\s+\*\/\s*$/, '*/');
-            }
-            if(/^\s+\*/.test( line )) {
-                return line.replace(/^(\s)\*/, '**' );
-            }
-            return line;
-        });
-
-        //* Now update the copyright notice
-        const writtenBy = gWrittenBy();
-        const updatedBy = gUpdatedBy();
-        const writtenPresent = lines.some( line => line.includes( writtenBy ));
-        const updatedPresent = lines.some( line => line.includes( updatedBy ));
-
-        if( writtenPresent || updatedPresent ) {
-            vscode.window.showInformationMessage('Copyright header already exists and is up to date!');
-        } else {
-            let insertIndex = lines.length - 1;
-            lines.splice( insertIndex, 0, `** ${updatedBy}` );
-            vscode.window.showInformationMessage('Copyright header updated!');
-        }
-        const newBlock = lines.join( '\n' );
-
-        //* Now replace the range of the block
-        const range = new vscode.Range( editor.document.positionAt( startIndex ), editor.document.positionAt( endIndex ));
-        editor.edit( editBuilder => {
-            editBuilder.replace( range, newBlock );
-        })
-    });
-    //-----------------------------------------------------------------------
-    let insertClassHeader = vscode.commands.registerCommand('cpp-class-generator.insertClassHeader', async ( uri: vscode.Uri | undefined ) => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage("No active editor found.");
-            return;
-        }
-        let className: string | undefined;
-        const document = editor.document;
-        const cursorPos = editor.selection.active;
-
-        const selection = editor.selection;
-        const selectedText = editor.document.getText(selection).trim();
-
-        const wordRange = document.getWordRangeAtPosition(cursorPos);
-        const wordUnderCursor = wordRange ? document.getText(wordRange).trim() : '';
-
-        if( selectedText && gbIsValidClassName( selectedText )) {
-            className = selectedText;
-        } else if( wordUnderCursor && gbIsValidClassName( wordUnderCursor )) {
-            className = wordUnderCursor;
-        } else {
-            className = await vscode.window.showInputBox({
-                prompt: 'Enter the name of the C++ class here',
-                validateInput: text => gbIsValidClassName( text ) ? null : 'Invalid class name.'
-            });
-        }
-        if( !className ) {
-            return;
-        }
-        const insertHeader = new vscode.Position( cursorPos.line, 0 );
-        const insertFooter = new vscode.Position( Math.min( cursorPos.line + 1, document.lineCount ), 0 );
-
-        let classHeader = gBuildClassHeader( className );
-        let classFooter = gBuildClassFooter( className );
-
-        let header = `${classHeader}${"\n"}`;
-        let footer = `${classFooter}${"\n"}`;
-
-        editor.edit( editBuilder => {
-            editBuilder.insert( insertFooter, footer );
-            editBuilder.insert( insertHeader, header );
-        });
-    });
+}
+//#
+//###########################################################################
+//#
+export function activate(context: vscode.ExtensionContext)
+{
+    let createFilesForNewClass  = vscode.commands.registerCommand('cpp-class-generator.createFilesForNewClass'  , gCreateFilesForNewClass );
+    let insertClassDeclaration  = vscode.commands.registerCommand('cpp-class-generator.insertClassDeclaration'  , gInsertClassDeclaration );
+    let insertClassDefinition   = vscode.commands.registerCommand('cpp-class-generator.insertClassDefinition'   , gInsertClassDefinition );
+    let insertNewClass          = vscode.commands.registerCommand('cpp-class-generator.insertNewClass'          , gInsertNewClass );
+    let insertCopyright         = vscode.commands.registerCommand('cpp-class-generator.insertCopyright'         , gInsertCopyright );
+    let insertClassHeader       = vscode.commands.registerCommand('cpp-class-generator.insertClassHeader'       , gInsertClassHeader );
     //-----------------------------------------------------------------------
     context.subscriptions.push( insertCopyright, createFilesForNewClass, insertClassHeader, insertClassDeclaration, insertClassDefinition, insertNewClass );
 }
