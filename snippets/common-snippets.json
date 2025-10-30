@@ -23,9 +23,25 @@
             "//#"
         ]
     },
-    "Function Divider": {
+    "C# Class Divider": {
+        "prefix": "###",
+        "description": "C# Class divider",
+        "body": [
+            "//#",
+            "//###########################################################################",
+            "//#"
+        ]
+    },
+    "C/C++ Function Divider": {
         "prefix": "//--",
-        "description": "Adds a function divider",
+        "description": "Adds a C/C++ function divider",
+        "body": [
+            "//---------------------------------------------------------------------------"
+        ]
+    },
+    "C# Function Divider": {
+        "prefix": "divider",
+        "description": "Adds a C# function divider",
         "body": [
             "//---------------------------------------------------------------------------"
         ]

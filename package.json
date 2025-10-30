@@ -103,14 +103,9 @@
       ]
     },
     "snippets": [
-      {
-        "language": "c",
-        "path": "./snippets/cpp.json"
-      },
-      {
-        "language": "cpp",
-        "path": "./snippets/cpp.json"
-      }
+      { "language": "c", "path": "./snippets/common-snippets.json" },
+      { "language": "cpp", "path": "./snippets/common-snippets.json" },
+      { "language": "csharp", "path": "./snippets/common-snippets.json" }
     ]
   },
   "repository": {
