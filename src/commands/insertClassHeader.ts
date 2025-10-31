@@ -77,19 +77,7 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
         vscode.window.showInformationMessage( "Class header was updated" );
         return;
     }
-    // // Search up from cursor
-    // for( let line = cursorPos.line; line >= 0; line-- ) {
-    //     const text = document.lineAt( line ).text;
 
-    //     if( regex.test( text )) {
-    //         await editor.edit( editBuilder => {
-    //             const range = document.lineAt( line ).range;
-    //             editBuilder.replace( range, newHeader );
-    //         })
-    //         vscode.window.showInformationMessage( "Class header was updated" );
-    //         return;
-    //     }
-    // }
     const insertHeader = new vscode.Position( cursorPos.line, 0 );
     const insertFooter = new vscode.Position( Math.min( cursorPos.line + 1, document.lineCount ), 0 );
 
