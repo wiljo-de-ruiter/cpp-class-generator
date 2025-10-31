@@ -44,7 +44,7 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
         return;
     }
     // Regex om een regel zoals //# oldname # oldname # te matchen
-    const regex = /^\/\/#\s*([A-Za-z_]\w*)(?:\s+#\s*[A-Za-z_]\w*\s*)*#?\s*$/;
+    const regex = /^\/\/#\s*([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*)(?:\s+#\s*[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*)*\s*#?\s*$/;
 
     let foundLines: number[] = [];
 
