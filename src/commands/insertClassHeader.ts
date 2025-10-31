@@ -74,7 +74,7 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
                 editBuilder.replace( range, newHeader );
             }
         })
-        vscode.window.showInformationMessage( "Class header was updated" );
+        vscode.window.showInformationMessage( "Class header and footer were updated" );
         return;
     }
 
@@ -91,4 +91,6 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
         editBuilder.insert( insertFooter, footer );
         editBuilder.insert( insertHeader, header );
     });
+
+    vscode.window.showInformationMessage( "Class header and footer were added" );
 }
