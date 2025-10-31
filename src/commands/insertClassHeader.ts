@@ -67,7 +67,7 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
 
     const newHeader = utils.gBuildClassHeaderLine( className );
 
-    if( foundLines.length > 0 ) {
+    if( foundLines.length == 2 ) {
         await editor.edit( editBuilder => {
             for( const line of foundLines ) {
                 const range = document.lineAt( line ).range;
