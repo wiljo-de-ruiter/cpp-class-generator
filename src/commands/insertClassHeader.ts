@@ -43,6 +43,53 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
     if( !className ) {
         return;
     }
+    // Regex om een regel zoals //# oldname # oldname # te matchen
+    const regex = /^\/\/#\s*([A-Za-z_]\w*)(?:\s+#\s*[A-Za-z_]\w*\s*)*#?\s*$/;
+
+    let foundLines: number[] = [];
+
+    //* Look backwards
+    for( let line = cursorPos.line - 1; line >= 0; line-- ) {
+        const text = document.lineAt( line ).text;
+        if( regex.test( text )) {
+            foundLines.push( line );
+            break;  // Stop at the first match
+        }
+    }
+    //* Look forwards
+    for( let line = cursorPos.line + 1; line < document.lineCount; line++ ) {
+        const text = document.lineAt( line ).text;
+        if( regex.test( text )) {
+            foundLines.push( line );
+            break;  // Stop at the first match
+        }
+    }
+
+    const newHeader = utils.gBuildClassHeaderLine( className );
+
+    if( foundLines.length > 0 ) {
+        await editor.edit( editBuilder => {
+            for( const line of foundLines ) {
+                const range = document.lineAt( line ).range;
+                editBuilder.replace( range, newHeader );
+            }
+        })
+        vscode.window.showInformationMessage( "Class header was updated" );
+        return;
+    }
+    // // Search up from cursor
+    // for( let line = cursorPos.line; line >= 0; line-- ) {
+    //     const text = document.lineAt( line ).text;
+
+    //     if( regex.test( text )) {
+    //         await editor.edit( editBuilder => {
+    //             const range = document.lineAt( line ).range;
+    //             editBuilder.replace( range, newHeader );
+    //         })
+    //         vscode.window.showInformationMessage( "Class header was updated" );
+    //         return;
+    //     }
+    // }
     const insertHeader = new vscode.Position( cursorPos.line, 0 );
     const insertFooter = new vscode.Position( Math.min( cursorPos.line + 1, document.lineCount ), 0 );
 
