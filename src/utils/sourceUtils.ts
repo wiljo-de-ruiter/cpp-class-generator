@@ -113,9 +113,9 @@ export function gBuildClassHeaderLine(className: string, totalLength = 77): stri
     while( padding > 0 ) {
         // Add padding from the center outwards
         for( let i = 0; padding > 0 && i < tokenCount; ++i, --padding ) {
-            sp[ tokenCount - i - 1 ] += 1;
+            sp[ tokenCount + i ] += 1;
             if( --padding > 0 ) {
-                sp[ tokenCount + i ] += 1;
+                sp[ tokenCount - i - 1 ] += 1;
             }
         }
     }
