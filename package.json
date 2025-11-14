@@ -48,6 +48,33 @@
         "category": "C++"
       }
     ],
+    "keybindings": [
+      {
+        "command": "cpp-class-generator.insertCopyright",
+        "key": "ctrl+alt+c",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "cpp-class-generator.insertClassDeclaration",
+        "key": "ctrl+alt+d",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "cpp-class-generator.insertClassDefinition",
+        "key": "ctrl+alt+i",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "cpp-class-generator.createFilesForNewClass",
+        "key": "ctrl+alt+n",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "cpp-class-generator.insertClassHeader",
+        "key": "ctrl+alt+h",
+        "when": "editorTextFocus"
+      }
+    ],
     "configuration": {
       "title": "C++ Class Generator",
       "properties": {
