@@ -48,10 +48,13 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
 
     let foundLines: number[] = [];
 
+    let indent = '';
     //* Look backwards
     for( let line = cursorPos.line - 1; line >= 0; line-- ) {
         const text = document.lineAt( line ).text;
         if( regex.test( text )) {
+            const indentMatch = text.match(/^\s*/);
+            indent = indentMatch ? indentMatch[ 0 ] : '';
             foundLines.push( line );
             break;  // Stop at the first match
         }
@@ -71,7 +74,7 @@ export async function gInsertClassHeader( uri: vscode.Uri | undefined )
         await editor.edit( editBuilder => {
             for( const line of foundLines ) {
                 const range = document.lineAt( line ).range;
-                editBuilder.replace( range, newHeader );
+                editBuilder.replace( range, `${indent}${newHeader}` );
             }
         })
         vscode.window.showInformationMessage( "Class header and footer were updated" );
