@@ -138,67 +138,67 @@ export function gBuildClassHeaderLine(className: string, totalLength = 77): stri
 //#
 //###########################################################################
 //#
-export function gBuildClassHeader( className: string ): string
+export function gBuildClassHeader( className: string, indent: string = '' ): string
 {
     const classHeaderLine = gBuildClassHeaderLine( className )
 
-    return `//#
-//###########################################################################
-${classHeaderLine}
-//#`;
+    return `${indent}//#
+${indent}//###########################################################################
+${indent}${classHeaderLine}
+${indent}//#`;
 }
 //#
 //###########################################################################
 //#
-export function gBuildClassFooter( className: string ): string
+export function gBuildClassFooter( className: string, indent: string = '' ): string
 {
     const classHeaderLine = gBuildClassHeaderLine( className )
 
-    return `//#
-${classHeaderLine}
-//###########################################################################
-//#`;
+    return `${indent}//#
+${indent}${classHeaderLine}
+${indent}//###########################################################################
+${indent}//#`;
 }
 //#
 //###########################################################################
 //#
-export function gBuildClassDeclaration( className: string ): string
+export function gBuildClassDeclaration( className: string, indent: string = '' ): string
 {
-    const classHeader = gBuildClassHeader( className )
-    const classFooter = gBuildClassFooter( className )
+    const classHeader = gBuildClassHeader( className, indent )
+    const classFooter = gBuildClassFooter( className, indent )
 
     return `${classHeader}
-class ${className}
-{
-public:
-    ${className}();
-    ~${className}();
-    //-----------------------------------------------------------------------
-
-protected:
-private:
-};
+${indent}class ${className}
+${indent}{
+${indent}public:
+${indent}    ${className}();
+${indent}    ~${className}();
+${indent}    //-----------------------------------------------------------------------
+${indent}
+${indent}protected:
+${indent}private:
+${indent}};
 ${classFooter}
 `;
 }
 //#
 //###########################################################################
 //#
-export function gBuildClassDefinition( className: string ): string
+export function gBuildClassDefinition( className: string, indent: string = '' ): string
 {
-    const classHeader = gBuildClassHeader( className )
-    const classFooter = gBuildClassFooter( className )
+    const classHeader = gBuildClassHeader( className, indent )
+    const classFooter = gBuildClassFooter( className, indent )
 
     return `${classHeader}
-${className}::${className}()
-{
-    // constructor
-}
-//---------------------------------------------------------------------------
-${className}::~${className}()
-{
-    // destructor
-}
+${indent}${className}::${className}()
+${indent}{
+${indent}    // constructor
+${indent}}
+${indent}//---------------------------------------------------------------------------
+${indent}${className}::~${className}()
+${indent}{
+${indent}    // destructor
+${indent}}
 ${classFooter}
 `;
 }

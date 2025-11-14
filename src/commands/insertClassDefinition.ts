@@ -31,14 +31,20 @@ export async function gInsertClassDefinition( uri: vscode.Uri | undefined )
         return;
     }
 
-    let snippet = utils.gBuildClassDefinition( className );
 
     const document = editor.document;
     const cursorPos = editor.selection.active;
+    const lineNumber = editor.selection.active.line;
+    const line = document.lineAt( lineNumber );
+    const indentMatch = line.text.match(/^\s*/);
+    const indent = indentMatch ? indentMatch[ 0 ] : '';
+
     const insertLine = cursorPos.character === 0
-            ? cursorPos.line
-            : Math.min( cursorPos.line + 1, document.lineCount );
+    ? cursorPos.line
+    : Math.min( cursorPos.line + 1, document.lineCount );
     const insertPos = new vscode.Position( insertLine, 0 );
+
+    let snippet = utils.gBuildClassDefinition( className, indent );
 
     editor.edit( editBuilder => {
         editBuilder.insert( insertPos, snippet );
